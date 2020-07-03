@@ -5,7 +5,7 @@ libs=-lgsl -lgslcblas -lm
 	#If you don't have the GSL, comment this out and build with 'make randomB' 
 gsl=-I/usr/include/gsl
 #Edit! This is where your executable will be put.	
-bin=H:/ToFeT/tofet_orig/bin
+bin=H:/ToFeT/tofet/bin
 
 all: global.h graph.h graph.cc hopper.h hoppers.h hoppers.cc IO.cc IO.h tofet.cc kmc.cc kmc.h vec.h vertex.cc vertex.h
 	${cc} ${gsl} -o2 global.cc graph.cc hoppers.cc IO.cc tofet.cc kmc.cc vertex.cc -o ${bin}/tft ${libs}
