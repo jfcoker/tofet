@@ -21,6 +21,20 @@
 #include "hoppers.h"
 #include "kmc.h"
 
+int runKMC(kmc * pKMC, bool fetMode) {
+    if (fetMode) {
+        // RUN FET SIMULATIONS
+        if (VERBOSITY_HIGH) cout << "Using algorithm KMC::FRM_FET()\n";
+        pKMC->FRM_FET();
+    }
+    else {
+        // RUN TOF SIMULATIONS (DEFAULT)
+        if (VERBOSITY_HIGH) cout << "Using algorithm KMC::FRM()\n";
+        pKMC->FRM();
+    }
+    return 0;
+}
+
 int main(int argc, char * argv[]) {
     // DETERMINE INPUT FILES
     if(argc < 4) {				
@@ -87,18 +101,10 @@ int main(int argc, char * argv[]) {
     cout << "All systems go!  Beginning KMC...\n"
          << ".................................\n"
          << ".................................\n";
+    cout << flush;
 
-    // RUN FET SIMULATIONS
-    if ( Read(sim,"mode","tof")=="fet" ) { 
-		if ( VERBOSITY_HIGH ) cout << "Using algorithm KMC::FRM_FET()\n";
-		KMC.FRM_FET(); 
-	}
-
-    // RUN TOF SIMULATIONS (DEFAULT)
-	else {
-        if ( VERBOSITY_HIGH ) cout << "Using algorithm KMC::FRM()\n";
-        KMC.FRM();	
-    }
+    // RUN SIMULATIONS
+    runKMC(&KMC, Read(sim, "mode", "tof") == "fet");
 
     // OUTPUT
     cout << "Simulation finished with " << WARNINGS << " warnings\n" 
