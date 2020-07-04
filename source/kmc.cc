@@ -25,7 +25,7 @@ void kmc::FRM() {
 
     bool timedOut = false;
     if (_timeoutMinutes) {
-        thread timeoutThread(&SleepUntilTimeout, this);
+        thread timeoutThread(&kmc::SleepUntilTimeout, this);
         timeoutThread.detach();
     }
 
