@@ -126,6 +126,7 @@ int main(int argc, char * argv[]) {
 			 << "\ttime (s)\t-\tcurrent (A)\n";
 		KMC.PrintCurrent();
 	    cout << "> TOTAL RUNS = " << KMC.GetnRuns() << endl
+             << "> TOTAL SIMULATION TIME = " << KMC.GetTotalTimeOverAllRuns() << endl
 		     << "> MOBILITY FROM COLLECTION TIMES (cm^2/V.s)= " 
 	         << Hoppers.GetSumReciprocalCollTimes() / (double (Hoppers.GetTotalCollectionEvents())) * 1e-16 
                 * (Graph.GetDepth() / -Graph.GetFieldZ()) << endl

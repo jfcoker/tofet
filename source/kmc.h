@@ -54,6 +54,14 @@ class kmc{
     
         void UpdatePhotocurrent(const double & ); 
         double (hoppers::*moveFastest)();  // pointer to appropriate MoveFastest_* function 
+
+       /***************************************************
+        * TIMEOUT
+        **************************************************/
+        int _timeoutMinutes = 1;
+        std::mutex _mutex;
+        void SleepUntilTimeout();
+
     //end of private:
 
     public:

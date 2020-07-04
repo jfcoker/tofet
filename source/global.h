@@ -32,6 +32,13 @@
 #include "gsl/gsl_rng.h"
 #include "gsl/gsl_randist.h"
 extern gsl_rng * gslRand;
+
+// Clean exit on timeout
+#include <mutex>
+#include <chrono>
+#include <thread>
+
+
 #endif
 
 template<typename T> void safe_delete(T& );

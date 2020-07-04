@@ -22,8 +22,13 @@ void kmc::FRM() {
     double newMu = 1e50;
     double changeInMu = 1e50;
     double dz;
+
+    bool timedOut = false;
+    thread timeoutThread(&SleepUntilTimeout,this);
+    timeoutThread.detach();
+
     _nRuns=0;
-    while (1) {  // entire simulation... 
+    while (!timedOut) {  // entire simulation... 
         _Hoppers->GenerateAll(_nHoppers, 0.0);
         if (_hopperInteractions) {
             _Hoppers->SetHops_C(0.0);
@@ -36,8 +41,17 @@ void kmc::FRM() {
             _sum_dz+=dz;
             UpdatePhotocurrent( dz );
             if (_time > _maxTime) {
-                cout << "!!! WARNING !!! : Mobility not converged, maxTime exceeded.\n";
+                cout << "!!! WARNING !!! : Mobility not converged, simulation maxTime exceeded.\n";
                 WARNINGS++;
+                break;
+            }
+            if (_mutex.try_lock()) {
+                // Try to gain ownership of the mutex object
+                // This should only succeed if the timeout thread has released it upon reaching the end of the timout interval.
+                cout << "!!! WARNING !!! : Mobility not converged, timeout triggered.\n";
+                WARNINGS++;
+                timedOut = true;
+                _mutex.unlock();
                 break;
             }
         }
@@ -88,5 +102,11 @@ void kmc::UpdatePhotocurrent(const double & dz){
         _nLogTimeBins = _geometricBin+1;
     }
     _current[_geometricBin] += dz;    
+}
+
+void kmc::SleepUntilTimeout() {
+    _mutex.lock();
+    this_thread::sleep_for(chrono::minutes(_timeoutMinutes));
+    _mutex.unlock();
 }
 
