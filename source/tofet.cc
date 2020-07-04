@@ -21,20 +21,6 @@
 #include "hoppers.h"
 #include "kmc.h"
 
-int runKMC(kmc * pKMC, bool fetMode) {
-    if (fetMode) {
-        // RUN FET SIMULATIONS
-        if (VERBOSITY_HIGH) cout << "Using algorithm KMC::FRM_FET()\n";
-        pKMC->FRM_FET();
-    }
-    else {
-        // RUN TOF SIMULATIONS (DEFAULT)
-        if (VERBOSITY_HIGH) cout << "Using algorithm KMC::FRM()\n";
-        pKMC->FRM();
-    }
-    return 0;
-}
-
 int main(int argc, char * argv[]) {
     // DETERMINE INPUT FILES
     if(argc < 4) {				
@@ -103,8 +89,17 @@ int main(int argc, char * argv[]) {
          << ".................................\n";
     cout << flush;
 
-    // RUN SIMULATIONS
-    runKMC(&KMC, Read(sim, "mode", "tof") == "fet");
+    // RUN FET SIMULATIONS
+    if ( Read(sim,"mode","tof")=="fet" ) { 
+		if ( VERBOSITY_HIGH ) cout << "Using algorithm KMC::FRM_FET()\n";
+		KMC.FRM_FET(); 
+	}
+
+    // RUN TOF SIMULATIONS (DEFAULT)
+	else {
+        if ( VERBOSITY_HIGH ) cout << "Using algorithm KMC::FRM()\n";
+        KMC.FRM();	
+    }
 
     // OUTPUT
     cout << "Simulation finished with " << WARNINGS << " warnings\n" 
@@ -126,7 +121,7 @@ int main(int argc, char * argv[]) {
 			 << "\ttime (s)\t-\tcurrent (A)\n";
 		KMC.PrintCurrent();
 	    cout << "> TOTAL RUNS = " << KMC.GetnRuns() << endl
-             << "> TOTAL SIMULATION TIME = " << KMC.GetTotalTimeOverAllRuns() << endl
+             << "> TOTAL SIMULATION TIME (s) = " << KMC.GetTotalTimeOverAllRuns() << endl
 		     << "> MOBILITY FROM COLLECTION TIMES (cm^2/V.s)= " 
 	         << Hoppers.GetSumReciprocalCollTimes() / (double (Hoppers.GetTotalCollectionEvents())) * 1e-16 
                 * (Graph.GetDepth() / -Graph.GetFieldZ()) << endl
