@@ -45,6 +45,10 @@ int main(int argc, char * argv[]) {
     // Determine verbosity of output
     if (Read(sim, "verbosity", "low") == "high") VERBOSITY_HIGH = true;
 
+    // Determine timeout interval
+    int timeoutMinutes=0;
+    timeoutMinutes = atoi(Read(sim, "timeout", "0").c_str());
+
     // SETUP GSL RANDOM NUMBER GENERATOR (IF NEEDED)
     #ifndef RandomB
     cout << "Setting up GSL random number generator...\n";
@@ -83,7 +87,7 @@ int main(int argc, char * argv[]) {
 
     // INITIALISE KMC
 	if ( VERBOSITY_HIGH ) cout << "Initialising KMC...\n";
-    kmc KMC(sim, &Hoppers, totalHoppers, &Graph);
+    kmc KMC(sim, &Hoppers, totalHoppers, &Graph, timeoutMinutes);
     cout << "All systems go!  Beginning KMC...\n"
          << ".................................\n"
          << ".................................\n";

@@ -38,7 +38,6 @@ extern gsl_rng * gslRand;
 #include <chrono>
 #include <thread>
 
-
 #endif
 
 template<typename T> void safe_delete(T& );

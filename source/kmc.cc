@@ -24,8 +24,10 @@ void kmc::FRM() {
     double dz;
 
     bool timedOut = false;
-    thread timeoutThread(&SleepUntilTimeout,this);
-    timeoutThread.detach();
+    if (_timeoutMinutes) {
+        thread timeoutThread(&SleepUntilTimeout, this);
+        timeoutThread.detach();
+    }
 
     _nRuns=0;
     while (!timedOut) {  // entire simulation... 
@@ -45,14 +47,16 @@ void kmc::FRM() {
                 WARNINGS++;
                 break;
             }
-            if (_mutex.try_lock()) {
-                // Try to gain ownership of the mutex object
-                // This should only succeed if the timeout thread has released it upon reaching the end of the timout interval.
-                cout << "!!! WARNING !!! : Mobility not converged, timeout triggered.\n";
-                WARNINGS++;
-                timedOut = true;
-                _mutex.unlock();
-                break;
+            if (_timeoutMinutes) {
+                if (_mutex.try_lock()) {
+                    // Try to gain ownership of the mutex object
+                    // This should only succeed if the timeout thread has released it upon reaching the end of the timout interval.
+                    cout << "!!! WARNING !!! : Mobility not converged, timeout triggered.\n";
+                    WARNINGS++;
+                    timedOut = true;
+                    _mutex.unlock();
+                    break;
+                }
             }
         }
         _nRuns++;

@@ -58,7 +58,7 @@ class kmc{
        /***************************************************
         * TIMEOUT
         **************************************************/
-        int _timeoutMinutes = 1;
+        int _timeoutMinutes;
         std::mutex _mutex;
         void SleepUntilTimeout();
 
@@ -66,12 +66,13 @@ class kmc{
 
     public:
         kmc(){}
-        kmc(char * sim, hoppers * Hoppers, int totalHoppers, graph * Graph ){
+        kmc(char * sim, hoppers * Hoppers, int totalHoppers, graph * Graph, int timeoutMinutes){
             _totalTimeOverAllRuns = 0.0;
             _sum_dz = 0.0;
             _graph = Graph;
             _Hoppers = Hoppers;
             _maxTime=atof(Read(sim,"maxTime").c_str());
+            _timeoutMinutes = timeoutMinutes;
             _mode = Read(sim, "mode", "tof");
             if (Read(sim, "hopperInteractions", "0") == "1") {
                 _hopperInteractions = true;
