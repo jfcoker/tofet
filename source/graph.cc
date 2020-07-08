@@ -300,23 +300,35 @@ vector <vertex *> graph::GetPreviouslyOccupied(char * filename) {
 vertex * graph::GetEmptyGenerator(){
     vector <vertex *>::iterator it_vert;
     vector <vertex *> plausibleCandidate;
-    int n=0;
     for (it_vert = _vertices.begin(); it_vert != _vertices.end() ; ++it_vert ){
         if ( !((*it_vert)->IsOccupied()) && (*it_vert)->IsGenerator() ) {
-            n++;
             plausibleCandidate.push_back(*it_vert);
         }
     }
-    if (n==0) {
-        cout << "***ERROR*** Failed to find an empty generator!\n"
-             << "            Size of _vertices=" << _vertices.size() << endl;
-        exit(-1);
+
+    // Make sure we pick a generator with at least 1 neighbour.
+    // Otherwise we will get an infinite waitTime until next hop.
+    while(plausibleCandidate.size() > 0) {
+
+        #ifdef RandomB
+        it_vert = plausibleCandidate.begin() + RandPos(plausibleCandidate.size()); //samples in range [0,n-1]
+        #else
+        it_vert = plausibleCandidate.begin() + gsl_rng_uniform_int(gslRand, plausibleCandidate.size()); //samples in range [0,n-1]
+        #endif
+        
+        // Found a suitable candidate.
+        if ((*it_vert)->GetNumberNeighbours() > 0)
+            return *it_vert;
+
+        // Not suitable, remove from contention.
+        plausibleCandidate.erase(it_vert);
+
     }
-    #ifdef RandomB
-    return plausibleCandidate[ RandPos(n) ]; //samples in range [0,n-1]
-    #else
-    return plausibleCandidate[ gsl_rng_uniform_int(gslRand,n) ]; //samples in range [0,n-1]
-    #endif
+
+    cout << "***ERROR*** Failed to find an empty generator with at least one edge!\n"
+         << "            Size of _vertices=" << _vertices.size() << endl;
+    exit(-1);
+
 }
 // Return a vector of collectors
 vector <vertex *> graph::GetCollectors() {
