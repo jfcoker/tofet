@@ -171,6 +171,7 @@ class hoppers{
         double  GetFastestZ  () const  {return (*_fastest)->GetFrom()->GetZ();}
         const double  & GetFastestDz  () const  {return (*_fastest)->GetDz();}
         double GetSumReciprocalCollTimes()  {return _totalReciprocalCollectionTimes;}
+        double GetGenerationTimeOfFinalHopper() { if (_hoppers.empty()) return -1.0; else return _hoppers.back()->GetGenerationTime(); }
         unsigned int GetTotalCollectionEvents()  {return _reciprocalCollectionTimes.size();}
         void PrintOccupiedVertices(string dest="");
         int GetCollectorCurrent()  {return _collectorCurrent;}
