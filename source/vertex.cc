@@ -15,6 +15,21 @@
 //  along with ToFeT.  If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////
 #include "vertex.h"
+
+// 1D minimum image distance
+// Calculates shortest distance between two points, taking into account periodic boundaries at [0,size]
+// For seperations of up to 1.5*size, should remain correct even if one or both points are outside the boundaries.
+double min_img_dist(double s1, double s2, double size) {
+    double delta = s2 - s1;
+    int k = (int)delta * (2.0 / size);
+    delta -= k * size;
+
+    k = (int)delta * (2.0 / size);
+    delta -= k * size;
+
+    return delta;
+}
+
 /***************************
  * MISCELLANEOUS
  **************************/
@@ -114,6 +129,20 @@ void vertex::SetDEs() {
         _DEs.push_back((*it)->GetE() - _E);
     }
 }
+// Set deltaZ's
+void vertex::SetDZs() {
+    vector <vertex*>::iterator it = _neighbours.begin();
+    for (unsigned int i = 0; i < _neighbours.size(); i++, it++) {
+        _DZs.push_back((*it)->GetZ() - _pos.getZ());
+    }
+}
+// Set deltaZ's, taking into account periodic boundaries
+void vertex::SetDZs_PB(const double& sizeZ) {
+    vector <vertex*>::iterator it = _neighbours.begin();
+    for (unsigned int i = 0; i < _neighbours.size(); i++, it++) {
+        _DZs.push_back(min_img_dist(_pos.getZ(), (*it)->GetZ(), sizeZ));
+    }
+}
 // Modify deltaE's to reflect an applied field.
 void vertex::SetField_DE(const double & field) {
     vector <vertex *>::iterator it=_neighbours.begin();
@@ -121,7 +150,14 @@ void vertex::SetField_DE(const double & field) {
         _DEs.at(i) += field * ((*it)->GetZ() - _pos.getZ());
     }
 }
-
+// Modify deltaE's to reflect an applied field, treating z boundaries as periodic by applying the minimum image convention.
+void vertex::SetField_PB_DE(const double& field, const double& sizeZ) {
+    vector <vertex*>::iterator it = _neighbours.begin();
+    double dZ;
+    for (unsigned int i = 0; i < _neighbours.size(); i++, it++) {
+        _DEs.at(i) += field * min_img_dist(_pos.getZ(), (*it)->GetZ(), sizeZ);
+    }
+}
 /*************************************
  * CALCULATE RATES 
  ************************************/
@@ -199,6 +235,43 @@ vertex * vertex::ChooseToUnoccupied(double totalRate) const{
     exit(-1);
     return NULL;
 }
+// Choose the destination, assuming that all neighbours are unoccupied
+// Return neighbour index
+int vertex::ChooseNeighbour() const {
+#ifdef RandomB
+    double X = Uniform() * _totalRate;
+#else
+    double X = gsl_rng_uniform(gslRand) * _totalRate;
+#endif
+    for (unsigned int i = 0; i < _rates.size(); i++) {
+        X -= _rates[i];
+        if (X <= 0.) return i;
+    }
+    cout << "***ERROR***: ChooseNeighbour() in Vertex.h has not found anywhere to hop to (can't handle this yet!)\n";
+    exit(-1);
+    return -1;
+}
+// Choose the destination, but check the occupation of the neighbours first
+//   (called only if an attempt is made to hop to an occupied vertex)
+// Return neighbour index
+int vertex::ChooseNeighbourUnoccupied(double totalRate) const {
+#ifdef RandomB
+    double X = Uniform() * totalRate;
+#else
+    double X = gsl_rng_uniform(gslRand) * totalRate;
+#endif
+    for (unsigned int i = 0; i < _rates.size(); i++) {
+        if (!_neighbours[i]->IsOccupied()) {
+            X -= _rates[i];
+            if (X <= 0.) return i;
+        }
+    }
+    cout << "***ERROR***: ChooseNeighbourUnoccupied() in Vertex.cc has not found anywhere to hop to (can't handle this yet!)\n";
+    cout << scientific << "             X = " << X << endl;
+    exit(-1);
+    return -1;
+}
+
 // Recalculate the totalRate to unoccupied neighbours.
 double vertex::CalcTotalRateToUnoccupied() {
     double totalRateToUnoccupied = 0.;

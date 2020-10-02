@@ -32,6 +32,8 @@ class graph{
         double _Vg;  // V.Ang^-1 (sorry!)
         double _fieldZ;  // V.Ang^-1
         double _temp;  // K
+        double _sizeX, _sizeY, _sizeZ; // Angs
+        bool _applyPBs;
         vector <vector <double> > _CoulombGrid;
         bool _hopperInteractions; 
         double _tmpX, _tmpY, _tmpZ;
@@ -66,7 +68,22 @@ class graph{
             else {
                 _hopperInteractions = false;
             }
-            // Read site energies:
+            if (Read(sim, "mode", "tof") == "pb") {
+                if (_hopperInteractions) {
+                    cout << "Read simulating volume sizeX, sizeY, sizeZ ...\n";
+                    _sizeX = atof(Read(sim, "sizeX").c_str());
+                    _sizeY = atof(Read(sim, "sizeY").c_str());
+                }
+                else {
+                    cout << "Read simulating volume sizeZ ...\n";
+                }
+                _sizeZ = atof(Read(sim, "sizeZ").c_str());
+                _applyPBs = true;
+            }
+            else {
+                _applyPBs = false;
+            }
+            // Read site energies: // JC: refactor idea - lots of code duplication in following block, could be simplified.
             if (Read(sim, "siteEnergies", "0") == "1"\
              || _hopperInteractions\
              || Read(sim, "mode", "tof") == "fet") {
@@ -75,6 +92,7 @@ class graph{
                 }
                 ReadVertices(xyz, _vertices, true);  // read E's 
                 ReadEdges(edge, _vertices, false);  // don't read deltaE's
+                SetDZs();
                 if (Read(sim, "mode", "tof") == "fet") {
                     SetDEs();
                     SetRatesPrefactor_C();  // doesn't set the field!
@@ -91,6 +109,18 @@ class graph{
                     if (_hopperInteractions) {
                         SetRatesPrefactor_C();
                         _coulombPrefactor=14.3996442/atof(Read(sim, "dielectric").c_str());
+                        // See above notes about MakeCoulombEnergyGrid()
+                    }
+                    else {
+                        SetRates_DE();
+                    }
+                }
+                if (Read(sim, "mode", "tof") == "pb") {
+                    SetDEs(); // Set DEs using E values unmodified by field.
+                    SetField_PB_DE(); // Then modify these DEs based on the field, treating Z boundaries as periodic.
+                    if (_hopperInteractions) {
+                        SetRatesPrefactor_C();
+                        _coulombPrefactor = 14.3996442 / atof(Read(sim, "dielectric").c_str());
                         // See above notes about MakeCoulombEnergyGrid()
                     }
                     else {
@@ -114,14 +144,16 @@ class graph{
                 if (VERBOSITY_HIGH) {
                     cout << "Reading delta E's from ***.edge\n";
                 }
-                ReadVertices(xyz,_vertices,false);  // don't read E
-                ReadEdges(edge,_vertices,true);	  // do read deltaE
-                SetField_DE();
+                ReadVertices(xyz, _vertices, false);  // don't read E
+                ReadEdges(edge, _vertices, true);	  // do read deltaE
+                SetDZs();
+
+                if (Read(sim, "mode", "tof") == "pb") SetField_PB_DE();
+                else SetField_DE();
                 SetRates_DE();
-                if (Read(sim,"printVertices","0")=="1") PrintVertices("DE");
-                if (Read(sim,"printEdges","0")=="1") {
-                    PrintEdges("DE", _hopperInteractions);
-                }
+
+                if (Read(sim, "printVertices", "0") == "1") PrintVertices("DE");
+                if (Read(sim, "printEdges", "0") == "1") PrintEdges("DE", _hopperInteractions);
             }
         }
         ~graph(){
@@ -138,8 +170,10 @@ class graph{
     void ClearDCs(); // reset _DCs to 0
     //void AddEdge(const unsigned int &, const unsigned int &, const double &);
     void SetDEs();  // set deltaE's from E's
+    void SetDZs(); // set deltaZ's for neighbours
     void SetField_E();  // modify E's to reflect an applied field...
     void SetField_DE();  // ... likewise for deltaE's
+    void SetField_PB_DE(); // Set detlaE's to reflect applied field, but treat Z boundaries as periodic
     void SetRatesPrefactor_C();  // set prefactors (no energies) 
     void SetRates_DE();  // set rates from deltaE's 
     void NormaliseOccupationTimes(const double, int);  

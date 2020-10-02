@@ -27,6 +27,11 @@
 
 using namespace std;
 
+// 1D minimum image distance
+// Calculates shortest distance between two points, taking into account periodic boundaries at [0,size]
+// For seperations of up to 1.5*size, should remain correct even if one or both points are outside the boundaries.
+double min_img_dist(double s1, double s2, double size);
+
 class vertex{
 
     private:
@@ -35,6 +40,7 @@ class vertex{
         vector <vertex *> _neighbours;
         vector <double> _Js;
         vector <double> _DEs;  // deltaE between vertices
+        vector <double> _DZs;  // deltaZ between vertices
         double _E;  // site energy, as read in from ***.xyz
         vector <double> _rates;
         double _totalRate; 
@@ -74,6 +80,7 @@ class vertex{
             _rates.clear();
             _Js.clear();
             _DEs.clear();
+            _DZs.clear();
             _DCs.clear();
         }
         
@@ -87,8 +94,11 @@ class vertex{
         void SetID(int i) 	{_ID = i;}
         void SetE(double E);
         void SetDEs();
+        void SetDZs();
+        void SetDZs_PB(const double& _sizeZ);
         void SetField_E(const double &_fieldZ);
         void SetField_DE(const double &_fieldZ);
+        void SetField_PB_DE(const double& _fieldZ, const double& _sizeZ);
         
         /*******************************
          * SET RATES
@@ -107,6 +117,8 @@ class vertex{
         double CalcTotalRateToUnoccupied(); 
         vertex * ChooseTo() const;
         vertex * ChooseToUnoccupied(double ) const;
+        int ChooseNeighbour() const;
+        int ChooseNeighbourUnoccupied(double) const;
         void IncrementDCs(int, double);
         void IncrementTotalOccupationTime(const double & time) {_totalOccupationTime+=time;}
         void NormaliseTotalOccupationTime(const double maxTime, int totalHoppers);
@@ -122,6 +134,7 @@ class vertex{
         const double &GetRate(int i) const {return _rates.at(i);}
         const double &GetJ(const int & i) {return _Js.at(i);}
         const double &GetDE(const int & i) {return _DEs.at(i);}
+        const double &GetDZ(const int & i) {return _DZs.at(i);}
         const double &GetDC(const int & i) {return _DCs.at(i);}
         const double &GetE() {return _E;}
         const double &GetEC_time() {return _EC_time;}

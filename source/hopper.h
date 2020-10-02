@@ -71,8 +71,9 @@ class hopper{
         _waitTime = time - log( gsl_rng_uniform_pos(gslRand) ) / totalRate;
         #endif
         if (totalRate>0) {
-            _to = _from->ChooseToUnoccupied(totalRate);
-            _dZ = (_to -> GetZ()) - (_from ->GetZ());
+            int neigh = _from->ChooseNeighbourUnoccupied(totalRate);
+            _to = _from->GetNeighbours()[neigh];
+            _dZ = _from->GetDZ(neigh);
         }
         else {
             _to = _from;
@@ -86,8 +87,9 @@ class hopper{
         _waitTime = time - log( gsl_rng_uniform_pos(gslRand) ) / _from->GetTotalRate();	
         #endif
         if (_from->GetTotalRate()>0) {
-            _to = _from->ChooseTo();
-            _dZ = (_to -> GetZ()) - (_from ->GetZ());
+            int neigh = _from->ChooseNeighbour();
+            _to = _from->GetNeighbours()[neigh];
+            _dZ = _from->GetDZ(neigh);
         }
         else {
             _to = _from;

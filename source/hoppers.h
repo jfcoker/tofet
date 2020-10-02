@@ -144,6 +144,7 @@ class hoppers{
         double MoveFastest_C() ;						
         double MoveFastest_RCI() ;					
         double MoveFastest_R() ;				
+        double MoveFastest_PB() ;
         double MoveFastest_F() ;			
         void FindFastest();				
         void SetWaitTimes(double time);

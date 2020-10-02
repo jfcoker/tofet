@@ -426,6 +426,23 @@ double hoppers::MoveFastest_RCI() {
     FindFastest();        
     return dz;
 }
+// The MoveFastest function for periodic boundary mode
+double hoppers::MoveFastest_PB() {
+    vertex* to = (*_fastest)->GetTo();
+    double fastestTime = GetFastestTime();
+    double dz;
+    // We might want to just ignore collection sites, in which case remove the block below.
+    //if (to->IsCollector()) {
+    //    _reciprocalCollectionTimes.push_back(1.0 / fastestTime);
+    //    _totalReciprocalCollectionTimes += (1.0 / fastestTime);
+    //    dz = GetFastestDz();
+    //    Remove(_fastest, fastestTime);
+    //}
+    //else dz = Move(_fastest, to, fastestTime);
+    dz = Move(_fastest, to, fastestTime);
+    FindFastest();
+    return dz;
+}
 // The 'MoveFastest' function for the FET mode
 double hoppers::MoveFastest_F() {
     vertex * to = (*_fastest)->GetTo();	

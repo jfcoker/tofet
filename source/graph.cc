@@ -108,11 +108,26 @@ void graph::SetField_DE() {
 	    (*it)->SetField_DE(_fieldZ);		
     }
 }
+// Set detlaE's to reflect applied field, treating Z boundaries as periodic.
+void graph::SetField_PB_DE() {
+    vector <vertex*>::iterator it = _vertices.begin();
+    for (; it != _vertices.end(); it++) {
+        (*it)->SetField_PB_DE(_fieldZ, _sizeZ);
+    }
+}
 // Set deltaE from E's
 void graph::SetDEs() {
     vector <vertex *>::iterator it=_vertices.begin();
-    for (int i=0; it<_vertices.end(); it++,i++) {
+    for (int i=0; it<_vertices.end(); it++,i++) { // JC: refactor idea - remove unused i
         (*it)->SetDEs();	
+    }
+}
+// Set deltaZ's
+void graph::SetDZs() {
+    vector <vertex*>::iterator it = _vertices.begin();
+    for (int i = 0; it < _vertices.end(); it++, i++) {
+        if (_applyPBs) (*it)->SetDZs_PB(_sizeZ);
+        else (*it)->SetDZs();
     }
 }
 // When have Coulombic interactions, only pre-factor 
@@ -172,15 +187,14 @@ double const &graph::GetCoulomb(vertex * v1, vertex * v2) {
 /****************************************
  * OUTPUT 
  ***************************************/
-// Print edges.  If 'hopperInteractions' there are no DE's or 
-//   rates yet.
+// Print edges. If 'hopperInteractions' there are no DE's or rates yet.
 void graph::PrintEdges(string mode, bool hopperInteractions) {
-    if (!hopperInteractions) { 
-        cout << "mol_ID\tneigh_ID\tdelta_z\tJ\tDE\trate\n";
-    }
-    else {
-        cout << "mol_ID\tneigh_ID\tdelta_z\tJ\n";
-    }
+    cout << "mol_ID\tneigh_ID\tdelta_z";
+    if (_applyPBs) cout << " (min img conv)";
+    cout << "\tJ";
+    if (!hopperInteractions) cout << "\tDE\trate";
+    cout << "\n";
+
     for (unsigned int i=0; i<_vertices.size(); i++) {
         cout << i << endl;
         vector <vertex *> Neighbours = (*_vertices.at(i)).GetNeighbours();
@@ -189,8 +203,10 @@ void graph::PrintEdges(string mode, bool hopperInteractions) {
         for (; it<Neighbours.end(); it++,neigh++) {
             for (unsigned int j=0; j<_vertices.size(); j++) {
                 if (_vertices.at(j) == *it) {      // This is baroque!
-                    cout << '\t' << j << '\t' << (*it)->GetZ()-_vertices.at(i)->GetZ()
-                    << '\t' << _vertices.at(i)->GetJ(neigh);
+                    cout << '\t' << j << '\t';
+                    if (_applyPBs) cout << min_img_dist(_vertices.at(i)->GetZ(), (*it)->GetZ(), _sizeZ); 
+                    else cout << (*it)->GetZ() - _vertices.at(i)->GetZ();
+                    cout << '\t' << _vertices.at(i)->GetJ(neigh);
                     if (!hopperInteractions) {  
                         cout << '\t' << _vertices.at(i)->GetDE(neigh);
                         cout << '\t' << (*_vertices.at(i)).GetRate(neigh);
@@ -254,10 +270,17 @@ void graph::PrintTotalOccupationTimes() {
  ******************************/
 // Get the distance between two vertices
 double graph::GetDistance(vertex * v1, vertex * v2) {
-    _tmpX=(*v1)._pos._x - (*v2)._pos._x;
-    _tmpY=(*v1)._pos._y - (*v2)._pos._y;
-    _tmpZ=(*v1)._pos._z - (*v2)._pos._z;
-    return sqrt( _tmpX*_tmpX + _tmpY*_tmpY + _tmpZ*_tmpZ );
+    if (_applyPBs) {
+        _tmpX = min_img_dist((*v1)._pos._x, (*v2)._pos._x, _sizeX);
+        _tmpY = min_img_dist((*v1)._pos._y, (*v2)._pos._y, _sizeY);
+        _tmpZ = min_img_dist((*v1)._pos._z, (*v2)._pos._z, _sizeZ);
+    }
+    else {
+        _tmpX = (*v2)._pos._x - (*v1)._pos._x;
+        _tmpY = (*v2)._pos._y - (*v1)._pos._y;
+        _tmpZ = (*v2)._pos._z - (*v1)._pos._z;
+    }
+    return sqrt(_tmpX * _tmpX + _tmpY * _tmpY + _tmpZ * _tmpZ);
 }
 // 
 int graph::CountTotalElectrodes() {

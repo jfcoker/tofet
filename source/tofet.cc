@@ -119,8 +119,8 @@ int main(int argc, char * argv[]) {
              << "\tmolecule_ID\n";
         Hoppers.PrintOccupiedVertices();
     }
-    // for regenerate and tof modes...
-    else if (Read(sim, "mode", "tof")=="regenerate" || Read(sim, "mode", "tof")=="tof") { 
+    // for regenerate and tof and periodic Z modes...
+    else if (Read(sim, "mode", "tof")=="regenerate" || Read(sim, "mode", "tof")=="tof" || Read(sim, "mode", "tof") == "pb") {
         cout << "> PHOTOCURRENT TRANSIENT\n"
 			 << "\ttime (s)\t-\tcurrent (A)\n";
 		KMC.PrintCurrent();

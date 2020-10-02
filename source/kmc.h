@@ -80,7 +80,7 @@ class kmc{
             else {
                 _hopperInteractions = false;
             }
-            if (_mode == "tof" || _mode == "regenerate") {
+            if (_mode == "tof" || _mode == "regenerate" || _mode == "pb") {
                 _dt=atof(Read(sim,"deltaTime").c_str());
                 if (_dt > _maxTime) {
                     cout << "*** ERROR *** : deltaTime > maxTime!\n";
@@ -116,6 +116,12 @@ class kmc{
                     }
                     moveFastest=&hoppers::MoveFastest_R;
                 }
+            }
+            if (_mode == "pb") {
+                if (VERBOSITY_HIGH) {
+                    cout << "Setting to MoveFastest_PB" << endl;
+                }
+                moveFastest = &hoppers::MoveFastest_PB;
             }
             if (_mode=="fet") {
                 if ( VERBOSITY_HIGH ) {
