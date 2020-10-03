@@ -123,31 +123,42 @@ int main(int argc, char * argv[]) {
              << "\tmolecule_ID\n";
         Hoppers.PrintOccupiedVertices();
     }
-    // for regenerate and tof and periodic Z modes...
-    else if (Read(sim, "mode", "tof")=="regenerate" || Read(sim, "mode", "tof")=="tof" || Read(sim, "mode", "tof") == "pb") {
+    else {
         cout << "> PHOTOCURRENT TRANSIENT\n"
-			 << "\ttime (s)\t-\tcurrent (A)\n";
-		KMC.PrintCurrent();
+             << "\ttime (s)\t-\tcurrent (A)\n";
+        KMC.PrintCurrent();
         cout << "> TOTAL RUNS = " << KMC.GetnRuns() << endl
              << "> TOTAL SIMULATION TIME (s) = " << KMC.GetTotalTimeOverAllRuns() << endl;
-        double finalGenTime = Hoppers.GetGenerationTimeOfFinalHopper();
-        if ( finalGenTime >= 0.0) {
-            cout << "> GENERATION TIME OF FINAL HOPPER (s) = " << finalGenTime << endl
-                 << "> LIFETIME OF FINAL HOPPER AS PROPORTION OF SIMULATION TIME = "
-                 << (KMC.GetTotalTimeOverAllRuns() - finalGenTime) / KMC.GetTotalTimeOverAllRuns()
-                 << endl;
+        cout << "> MOBILITY FROM TOTAL DISPLACEMENT AND TOTAL TIME (cm^2/V.s)= "
+             << KMC.GetSumDz() * 1e-16 / (KMC.GetTotalTimeOverAllRuns() * totalHoppers * -Graph.GetFieldZ())
+             << endl;
+
+        if (Read(sim, "mode", "tof") == "pb") {
+            cout << "> TOTAL DISPLACEMENT (Angs)= " << KMC.GetSumDz() << endl;
+            cout << "> AVERAGE DISPLACEMENT PER HOPPER (Angs)= " << KMC.GetSumDz() / totalHoppers << endl;
         }
-		cout << "> MOBILITY FROM COLLECTION TIMES (cm^2/V.s)= " 
-	         << Hoppers.GetSumReciprocalCollTimes() / (double (Hoppers.GetTotalCollectionEvents())) * 1e-16 
+
+        if (Read(sim, "mode", "tof") == "regenerate" || Read(sim, "mode", "tof") == "tof") {
+            cout << "> MOBILITY FROM COLLECTION TIMES (cm^2/V.s)= "
+                << Hoppers.GetSumReciprocalCollTimes() / (double(Hoppers.GetTotalCollectionEvents())) * 1e-16
                 * (Graph.GetDepth() / -Graph.GetFieldZ()) << endl
-             << "> MOBILITY FROM TOTAL DISPLACEMENT AND TOTAL TIME (cm^2/V.s)= " 
-             << KMC.GetSumDz() * 1e-16 / (KMC.GetTotalTimeOverAllRuns() * totalHoppers * -Graph.GetFieldZ()) 
-             << endl 
-             << "> AVERAGE NUMBER OF HOPPERS COLLECTED PER RUN = "
-             << double(Hoppers.GetTotalCollectionEvents()) / KMC.GetnRuns() << endl 
-             << "> PROBABILITY OF HOPPER BEING COLLECTED DURING RUN = "
-	         << double(Hoppers.GetTotalCollectionEvents()) / (KMC.GetnRuns() * totalHoppers) << endl;
-	}
+                << "> AVERAGE NUMBER OF HOPPERS COLLECTED PER RUN = "
+                << double(Hoppers.GetTotalCollectionEvents()) / KMC.GetnRuns() << endl
+                << "> PROBABILITY OF HOPPER BEING COLLECTED DURING RUN = "
+                << double(Hoppers.GetTotalCollectionEvents()) / (KMC.GetnRuns() * totalHoppers) << endl;
+
+            if (Read(sim, "mode", "tof") == "regenerate") {
+                double finalGenTime = Hoppers.GetGenerationTimeOfFinalHopper();
+                if (finalGenTime >= 0.0) {
+                    cout << "> GENERATION TIME OF FINAL HOPPER (s) = " << finalGenTime << endl
+                         << "> LIFETIME OF FINAL HOPPER AS PROPORTION OF SIMULATION TIME = "
+                         << (KMC.GetTotalTimeOverAllRuns() - finalGenTime) / KMC.GetTotalTimeOverAllRuns()
+                         << endl;
+                }
+            }
+
+        }
+    }
 
     // for tofetOccupation simulations...
     #ifdef printTotalOccupation
