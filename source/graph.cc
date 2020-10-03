@@ -16,6 +16,20 @@
 ///////////////////////////////////////////////////////////////////////
 #include "graph.h"
 
+// 1D minimum image distance
+// Calculates shortest distance between two points, taking into account periodic boundaries at [0,size]
+// For seperations of up to 1.5*size, should remain correct even if one or both points are outside the boundaries.
+double min_img_dist(double s1, double s2, double size) {
+    double delta = s2 - s1;
+    int k = (int)delta * (2.0 / size);
+    delta -= k * size;
+
+    k = (int)delta * (2.0 / size);
+    delta -= k * size;
+
+    return delta;
+}
+
 /************************************************************
  * SET-UP GRAPH
  * Read in from ***.xyz and ***.edge files and generate graph

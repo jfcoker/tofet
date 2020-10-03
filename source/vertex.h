@@ -27,11 +27,6 @@
 
 using namespace std;
 
-// 1D minimum image distance
-// Calculates shortest distance between two points, taking into account periodic boundaries at [0,size]
-// For seperations of up to 1.5*size, should remain correct even if one or both points are outside the boundaries.
-double min_img_dist(double s1, double s2, double size);
-
 class vertex{
 
     private:
