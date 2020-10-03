@@ -92,7 +92,7 @@ class vertex{
         void SetType (string);
         void SetID(int i) 	{_ID = i;}
         void SetE(double E);
-        void SetField_DE(const double &_fieldZ);
+        void ModifyDEsUsingField(const double &_fieldZ);
         
         /*******************************
          * SET RATES

@@ -91,7 +91,7 @@ class graph{
                 ReadVertices(xyz, _vertices, true);  // read E's 
                 ReadEdges(edge, _vertices, false);  // don't read deltaE's
 
-                SetField_DE();
+                ModifyDEsUsingField();
 
                 if (Read(sim, "mode", "tof") == "fet") {
                     
@@ -143,7 +143,7 @@ class graph{
                 ReadVertices(xyz, _vertices, false);  // don't read E
                 ReadEdges(edge, _vertices, true);	  // do read deltaE
 
-                SetField_DE();
+                ModifyDEsUsingField();
                 SetRates_DE();
 
                 if (Read(sim, "printVertices", "0") == "1") PrintVertices("DE");
@@ -163,7 +163,7 @@ class graph{
      ****************************/
     void ClearDCs(); // reset _DCs to 0
     //void AddEdge(const unsigned int &, const unsigned int &, const double &);
-    void SetField_DE();  // ... likewise for deltaE's
+    void ModifyDEsUsingField();  // ... likewise for deltaE's
     void SetRatesPrefactor_C();  // set prefactors (no energies) 
     void SetRates_DE();  // set rates from deltaE's 
     void NormaliseOccupationTimes(const double, int);  

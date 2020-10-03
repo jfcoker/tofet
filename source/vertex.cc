@@ -109,7 +109,7 @@ void vertex::SetE(double E) {
     _E = E;
 }
 // Modify deltaE's to reflect an applied field.
-void vertex::SetField_DE(const double & field) {
+void vertex::ModifyDEsUsingField(const double & field) {
     vector <vertex *>::iterator it=_neighbours.begin();
     for (unsigned int i=0; i<_neighbours.size(); i++,it++) {
         _DEs.at(i) += field * _DZs.at(i);

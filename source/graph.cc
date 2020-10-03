@@ -97,10 +97,10 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
  * Most of these functions simply wrap counterparts in vertex.cc
  **************************************************************/
 // Modify DE's to reflect an applied field.
-void graph::SetField_DE() {
+void graph::ModifyDEsUsingField() {
     vector <vertex *>::iterator it=_vertices.begin();
     for (; it!=_vertices.end(); it++) {
-	    (*it)->SetField_DE(_fieldZ);		
+	    (*it)->ModifyDEsUsingField(_fieldZ);		
     }
 }
 // When have Coulombic interactions, only pre-factor 
