@@ -87,16 +87,12 @@ class vertex{
         /*******************************
          * SETUP
          ******************************/
-        void AddNeighbour(vertex *, const double &); 
-        void AddNeighbour(vertex *, const double &, const double &); 
+        void AddNeighbour(vertex *, const double &, const double &, const double &); 
         void SetPos(const vec & pos);
         void SetType (string);
         void SetID(int i) 	{_ID = i;}
         void SetE(double E);
-        void SetDZs();
-        void SetDZs_PB(const double& _sizeZ);
         void SetField_DE(const double &_fieldZ);
-        void SetField_PB_DE(const double& _fieldZ, const double& _sizeZ);
         
         /*******************************
          * SET RATES

@@ -71,24 +71,14 @@ void vertex::SetUnoccupied(double time){
  * SETUP
  **************************/
 //
-void vertex::AddNeighbour(vertex *v, const double &J) {
-    if(find(_neighbours.begin(),_neighbours.end(),v) != _neighbours.end()) {
-        cout << "***ERROR***: Duplicated edges\n";
-        exit(-1);
-    }
-    _neighbours.push_back(v);
-    _Js.push_back(J);
-    _DCs.push_back(0.0);
-    _rates.push_back(0.0);
-}
-//
-void vertex::AddNeighbour(vertex *v, const double &J, const double &DE) {
+void vertex::AddNeighbour(vertex *v, const double &J, const double &DE, const double &DZ) {
     if(find(_neighbours.begin(),_neighbours.end(),v)!=_neighbours.end()) {
         cout << "***ERROR***: Duplicated edges\n";
         exit(-1);
     }
     _neighbours.push_back(v);
     _Js.push_back(J);
+    _DZs.push_back(DZ);
     _DEs.push_back(DE);
     _DCs.push_back(0.0);
     _rates.push_back(0.0);
@@ -118,33 +108,11 @@ void vertex::SetType (string type){
 void vertex::SetE(double E) {
     _E = E;
 }
-// Set deltaZ's
-void vertex::SetDZs() {
-    vector <vertex*>::iterator it = _neighbours.begin();
-    for (unsigned int i = 0; i < _neighbours.size(); i++, it++) {
-        _DZs.push_back((*it)->GetZ() - _pos.getZ());
-    }
-}
-// Set deltaZ's, taking into account periodic boundaries
-void vertex::SetDZs_PB(const double& sizeZ) {
-    vector <vertex*>::iterator it = _neighbours.begin();
-    for (unsigned int i = 0; i < _neighbours.size(); i++, it++) {
-        _DZs.push_back(min_img_dist(_pos.getZ(), (*it)->GetZ(), sizeZ));
-    }
-}
 // Modify deltaE's to reflect an applied field.
 void vertex::SetField_DE(const double & field) {
     vector <vertex *>::iterator it=_neighbours.begin();
     for (unsigned int i=0; i<_neighbours.size(); i++,it++) {
-        _DEs.at(i) += field * ((*it)->GetZ() - _pos.getZ());
-    }
-}
-// Modify deltaE's to reflect an applied field, treating z boundaries as periodic by applying the minimum image convention.
-void vertex::SetField_PB_DE(const double& field, const double& sizeZ) {
-    vector <vertex*>::iterator it = _neighbours.begin();
-    double dZ;
-    for (unsigned int i = 0; i < _neighbours.size(); i++, it++) {
-        _DEs.at(i) += field * min_img_dist(_pos.getZ(), (*it)->GetZ(), sizeZ);
+        _DEs.at(i) += field * _DZs.at(i);
     }
 }
 /*************************************

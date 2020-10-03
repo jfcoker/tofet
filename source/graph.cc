@@ -62,7 +62,7 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
     open(filename, in);
     string word;
     unsigned int v1, v2;
-    double J, DE;
+    double J, DE, DZ;
     int counter=0;
     while (in) {
         in >> word; v1=atoi(word.c_str());
@@ -71,6 +71,9 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
 
         if (readDeltaEnergies) { in >> word; DE=atof(word.c_str()); }
         else DE = vertices[v2]->GetE() - vertices[v1]->GetE();
+        
+        if (_applyPBs) DZ = min_img_dist(vertices[v1]->GetZ(), vertices[v2]->GetZ(), _sizeZ);
+        else DZ = vertices[v2]->GetZ() - vertices[v1]->GetZ();
 
         if (!in) break;
 
@@ -80,9 +83,9 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
             exit(-1);
         }
 
-        vertices[v1] -> AddNeighbour(vertices[v2],J, DE);
-        vertices[v2] -> AddNeighbour(vertices[v1],J,-DE);
-
+        vertices[v1] -> AddNeighbour(vertices[v2],J, DE, DZ);
+        vertices[v2] -> AddNeighbour(vertices[v1],J,-DE, -DZ);
+        
         counter++;
     }
     in.close();
@@ -98,21 +101,6 @@ void graph::SetField_DE() {
     vector <vertex *>::iterator it=_vertices.begin();
     for (; it!=_vertices.end(); it++) {
 	    (*it)->SetField_DE(_fieldZ);		
-    }
-}
-// Modify DE's to reflect an applied field, treating Z boundaries as periodic.
-void graph::SetField_PB_DE() {
-    vector <vertex*>::iterator it = _vertices.begin();
-    for (; it != _vertices.end(); it++) {
-        (*it)->SetField_PB_DE(_fieldZ, _sizeZ);
-    }
-}
-// Set deltaZ's
-void graph::SetDZs() {
-    vector <vertex*>::iterator it = _vertices.begin();
-    for (int i = 0; it < _vertices.end(); it++, i++) { // JC: Remove unused i?
-        if (_applyPBs) (*it)->SetDZs_PB(_sizeZ);
-        else (*it)->SetDZs();
     }
 }
 // When have Coulombic interactions, only pre-factor 
