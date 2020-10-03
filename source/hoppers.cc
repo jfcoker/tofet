@@ -29,8 +29,8 @@ void hoppers::PrintOccupiedVertices(string dest) {
         cout.rdbuf(fout.rdbuf()); 
     }
     map <vertex *, hopper *> ::iterator it_vert = _mapVertexToHopper.begin();
-    for (; it_vert!=_mapVertexToHopper.end(); ++it_vert) {                      
-        cout << "\t" <<  _graph->GetVertex(it_vert->first) << endl;
+    for (; it_vert!=_mapVertexToHopper.end(); ++it_vert) {
+        cout << "\t" << it_vert->first->GetID() << endl;
     }
     if (dest=="file") {
         fout.close();
@@ -512,20 +512,6 @@ void hoppers::SetWaitTimes(double time) {
  *
  * TODO: Should merge these functions... 
  ***************************************/ 
-// Find the hopper pointer, given the vertex.  Return Hopper.
-hopper * hoppers::GetHopper(vertex * v) {
-    map < vertex *, hopper * > :: iterator it = _mapVertexToHopper.find(v);
-    if (it != _mapVertexToHopper.end()){ 
-        return (it -> second);
-    }
-    else {
-        cout << "***ERROR*** : Thought vertex " << _graph->GetVertex(v) << " was occupied but can't find hopper\n";
-        cout << "              " << v->IsOccupied() << '\t' << v->IsCollector() << '\t' << v->IsGenerator() << endl;
-        cout << "Active hoppers = " << GetActive() << endl; 
-        cout << "Occupied vertices = "; _graph->PrintOccupied();
-        exit(-1);
-    }
-}
 // Find the hopper iterator to pointer, given the vertex.  Return iterator.
 list <hopper *>::iterator hoppers::GetHopperIterator(vertex *v) {
     map < vertex *, hopper * > :: iterator it_vert = _mapVertexToHopper.find(v);
@@ -533,22 +519,13 @@ list <hopper *>::iterator hoppers::GetHopperIterator(vertex *v) {
     for (int i=0; it_hop!=_hoppers.end(); i++, it_hop++) {
         if ( *it_hop == it_vert->second ){ return it_hop; }
     }
-    cout << "***ERROR*** : Thought vertex " << _graph->GetVertex(v) << " was occupied but can't find hopper\n";
+    cout << "***ERROR*** : Thought vertex " << v->GetID() << " was occupied but can't find hopper\n";
     cout << "              " << v->IsOccupied() << '\t' << v->IsCollector() << '\t' << v->IsGenerator() << endl;
     cout << "Active hoppers = " << GetActive() << endl;
     cout << "Occupied vertices = "; _graph->PrintOccupied();
     exit(-1);
 }
+// Find the hopper pointer, given the vertex.  Return Hopper.
+hopper* hoppers::GetHopper(vertex* v) { return *GetHopperIterator(v); }
 // Find the hopper index, given the vertex. Return index.
-int hoppers::GetHopperNumber(vertex *v) {
-    map < vertex *, hopper * > :: iterator it_vert = _mapVertexToHopper.find(v);
-    list <hopper *>::iterator it_hop = _hoppers.begin();
-    for (int i=0; it_hop!=_hoppers.end(); i++, it_hop++) {
-        if ( *it_hop == it_vert->second ){ return i; }
-    }
-    cout << "***ERROR*** : Thought vertex " << _graph->GetVertex(v) << " was occupied but can't find hopper\n";
-    cout << "              " << v->IsOccupied() << '\t' << v->IsCollector() << '\t' << v->IsGenerator() << endl;
-    cout << "Active hoppers = " << GetActive() << endl;
-    cout << "Occupied vertices = "; _graph->PrintOccupied();
-    exit(-1);
-}
+int hoppers::GetHopperNumber(vertex *v) { return distance(_hoppers.begin(), GetHopperIterator(v)); }
