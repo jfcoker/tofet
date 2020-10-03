@@ -42,6 +42,10 @@ int main(int argc, char * argv[]) {
         cout << "!!! ERROR !!!: hopperInteractions aren't currently implemented in the 'tof' mode\n";
         exit(-1);
     }
+    if (Read(sim, "hopperInteractions", "0") == "1" && Read(sim, "siteEnergies", "1") == "0") {
+        cout << "!!! ERROR !!!: hopperInteractions incompatible with siteEnergies 0\n";
+        exit(-1);
+    }
     // Determine verbosity of output
     if (Read(sim, "verbosity", "low") == "high") VERBOSITY_HIGH = true;
 
