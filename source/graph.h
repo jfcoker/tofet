@@ -84,17 +84,16 @@ class graph{
                 _applyPBs = false;
             }
             // Read site energies: // JC: refactor idea - lots of code duplication in following block, could be simplified.
-            if (Read(sim, "siteEnergies", "0") == "1"\
-             || _hopperInteractions\
-             || Read(sim, "mode", "tof") == "fet") {
-                if (VERBOSITY_HIGH) {
-                    cout << "Reading E's from ***.xyz\n";
-                }
+            if (Read(sim, "siteEnergies", "0") == "1" || _hopperInteractions || Read(sim, "mode", "tof") == "fet") {
+                
+                if (VERBOSITY_HIGH) cout << "Reading E's from ***.xyz\n";
+
                 ReadVertices(xyz, _vertices, true);  // read E's 
                 ReadEdges(edge, _vertices, false);  // don't read deltaE's
                 SetDZs();
+
                 if (Read(sim, "mode", "tof") == "fet") {
-                    SetDEs();
+                    SetField_DE();
                     SetRatesPrefactor_C();  // doesn't set the field!
                     // The Coulomb prefactor in eV.Ang/e^2:
                     _coulombPrefactor=14.3996442/atof(Read(sim, "dielectric").c_str());
@@ -104,8 +103,7 @@ class graph{
                     // MakeCoulombEnergyGrid(); 
                 }
                 if (Read(sim, "mode", "tof") == "regenerate") {
-                    SetField_E();
-                    SetDEs();
+                    SetField_DE();
                     if (_hopperInteractions) {
                         SetRatesPrefactor_C();
                         _coulombPrefactor=14.3996442/atof(Read(sim, "dielectric").c_str());
@@ -116,7 +114,6 @@ class graph{
                     }
                 }
                 if (Read(sim, "mode", "tof") == "pb") {
-                    SetDEs(); // Set DEs using E values unmodified by field.
                     SetField_PB_DE(); // Then modify these DEs based on the field, treating Z boundaries as periodic.
                     if (_hopperInteractions) {
                         SetRatesPrefactor_C();
@@ -128,8 +125,7 @@ class graph{
                     }
                 }
                 if (Read(sim, "mode", "tof") == "tof") {
-                    SetField_E();
-                    SetDEs();
+                    SetField_DE();
                     SetRates_DE();
                 }
                 if (Read(sim,"printVertices","0")=="1") {
@@ -169,9 +165,7 @@ class graph{
      ****************************/
     void ClearDCs(); // reset _DCs to 0
     //void AddEdge(const unsigned int &, const unsigned int &, const double &);
-    void SetDEs();  // set deltaE's from E's
     void SetDZs(); // set deltaZ's for neighbours
-    void SetField_E();  // modify E's to reflect an applied field...
     void SetField_DE();  // ... likewise for deltaE's
     void SetField_PB_DE(); // Set detlaE's to reflect applied field, but treat Z boundaries as periodic
     void SetRatesPrefactor_C();  // set prefactors (no energies) 

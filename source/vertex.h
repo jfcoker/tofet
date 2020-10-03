@@ -93,10 +93,8 @@ class vertex{
         void SetType (string);
         void SetID(int i) 	{_ID = i;}
         void SetE(double E);
-        void SetDEs();
         void SetDZs();
         void SetDZs_PB(const double& _sizeZ);
-        void SetField_E(const double &_fieldZ);
         void SetField_DE(const double &_fieldZ);
         void SetField_PB_DE(const double& _fieldZ, const double& _sizeZ);
         

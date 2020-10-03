@@ -118,17 +118,6 @@ void vertex::SetType (string type){
 void vertex::SetE(double E) {
     _E = E;
 }
-// Modify E's to reflect an applied field.
-void vertex::SetField_E(const double &fieldZ) {
-    _E += _pos.getZ() * fieldZ;
-}
-// Set deltaE's from E's
-void vertex::SetDEs() { 
-    vector <vertex *>::iterator it=_neighbours.begin();
-    for (unsigned int i=0; i<_neighbours.size(); i++,it++) {
-        _DEs.push_back((*it)->GetE() - _E);
-    }
-}
 // Set deltaZ's
 void vertex::SetDZs() {
     vector <vertex*>::iterator it = _neighbours.begin();

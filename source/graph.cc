@@ -28,25 +28,24 @@ void graph::ReadVertices(char * filename, vector <vertex *> &vertices, bool read
     double x, y, z, E;
     string type;
     int counter=0;
+
     while (in) {
         in >> word; x=atof(word.c_str());
         in >> word; y=atof(word.c_str());
         in >> word; z=atof(word.c_str());
         in >> word; type=word;
-        if (readEnergies) { 
-            in >> word; E=atof(word.c_str()); 
-        }
-        if (!in) {
-            break;
-        }
+
+        if (readEnergies) in >> word; E=atof(word.c_str()); 
+
+        if (!in) break;
+
         vertex * newVertex = new vertex;
         vec pos(x,y,z);
         newVertex->SetPos(pos);
         newVertex->SetType(type);
 	    newVertex->SetID(counter);
-        if (readEnergies) {
-            newVertex->SetE(E);
-        }
+        if (readEnergies) newVertex->SetE(E);
+
         vertices.push_back(newVertex);
         counter++;
     }
@@ -54,7 +53,7 @@ void graph::ReadVertices(char * filename, vector <vertex *> &vertices, bool read
     in.close();
 }
 // Read from ***.edge
-void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readEnergies=true) {
+void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDeltaEnergies=true) {
     if (vertices.size()<1) {
         cout << "***ERROR***: You are trying to initialise edges before vertices\n";
         exit(-1);
@@ -69,21 +68,21 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readEner
         in >> word; v1=atoi(word.c_str());
         in >> word; v2=atoi(word.c_str());
         in >> word; J =atof(word.c_str());
-        if (readEnergies) { in >> word; DE=atof(word.c_str()); }
+
+        if (readDeltaEnergies) { in >> word; DE=atof(word.c_str()); }
+        else DE = vertices[v2]->GetE() - vertices[v1]->GetE();
+
         if (!in) break;
+
         if (v1 >= vertices.size() || v2 >= vertices.size()  || v1 == v2 ){
             cout << "***ERROR***: Trying to create an edge on non-existent vertex "
                  << v1 << "->" << v2 <<"\n";
             exit(-1);
         }
-        if (readEnergies) {
-            vertices[v1] -> AddNeighbour(vertices[v2],J, DE);
-            vertices[v2] -> AddNeighbour(vertices[v1],J,-DE);
-        }
-        else {
-            vertices[v1] -> AddNeighbour(vertices[v2],J);
-            vertices[v2] -> AddNeighbour(vertices[v1],J);
-        }
+
+        vertices[v1] -> AddNeighbour(vertices[v2],J, DE);
+        vertices[v2] -> AddNeighbour(vertices[v1],J,-DE);
+
         counter++;
     }
     in.close();
@@ -94,38 +93,24 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readEner
  * SET THE ENERGETICS AND RATES OF THE EDGES OF THE GRAPH 
  * Most of these functions simply wrap counterparts in vertex.cc
  **************************************************************/
-// Modify E's to reflect an applied field...
-void graph::SetField_E() {
-    vector <vertex *>::iterator it=_vertices.begin();
-    for (; it!=_vertices.end(); it++) {
-	    (*it)->SetField_E(_fieldZ);		
-    }
-}
-// ... likewise for deltaE's 
+// Modify DE's to reflect an applied field.
 void graph::SetField_DE() {
     vector <vertex *>::iterator it=_vertices.begin();
     for (; it!=_vertices.end(); it++) {
 	    (*it)->SetField_DE(_fieldZ);		
     }
 }
-// Set detlaE's to reflect applied field, treating Z boundaries as periodic.
+// Modify DE's to reflect an applied field, treating Z boundaries as periodic.
 void graph::SetField_PB_DE() {
     vector <vertex*>::iterator it = _vertices.begin();
     for (; it != _vertices.end(); it++) {
         (*it)->SetField_PB_DE(_fieldZ, _sizeZ);
     }
 }
-// Set deltaE from E's
-void graph::SetDEs() {
-    vector <vertex *>::iterator it=_vertices.begin();
-    for (int i=0; it<_vertices.end(); it++,i++) { // JC: refactor idea - remove unused i
-        (*it)->SetDEs();	
-    }
-}
 // Set deltaZ's
 void graph::SetDZs() {
     vector <vertex*>::iterator it = _vertices.begin();
-    for (int i = 0; it < _vertices.end(); it++, i++) {
+    for (int i = 0; it < _vertices.end(); it++, i++) { // JC: Remove unused i?
         if (_applyPBs) (*it)->SetDZs_PB(_sizeZ);
         else (*it)->SetDZs();
     }
