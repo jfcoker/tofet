@@ -22,6 +22,15 @@
 #include "kmc.h"
 
 int main(int argc, char * argv[]) {
+
+    // Try to output results on detecting interrupt or terminate signals. 
+    struct sigaction sigHandler;
+    sigHandler.sa_handler = signal_handler;
+    sigemptyset(&sigHandler.sa_mask);
+    sigHandler.sa_flags = 0;
+    sigaction(SIGINT, &sigHandler, NULL);
+    sigaction(SIGTERM, &sigHandler, NULL);
+
     // DETERMINE INPUT FILES
     if(argc < 4) {				
 		cout << "*** ERROR ***: Expect at least three input files: .sim, .xyz, .edge\n";

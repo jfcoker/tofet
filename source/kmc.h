@@ -37,7 +37,7 @@ class kmc{
         int _geometricBin;  // time bins for photocurrent transients (tof)
         int _oldGeometricBin;
         double _maxTime; 		
-        int _nRuns;  // the number of runs in each simulation
+        int _run;  // the number of runs in each simulation
         double _maxRuns;  // set to double so that inf can be represented
         double _tol;  // tolerance of results of simulation
         double _lowerTol, _upperTol;
@@ -154,7 +154,7 @@ class kmc{
         const double & GetTime() const 	{return _time;}
         const double & GetAlpha() const	{return _alpha;}
         vector <double> & GetTimeBins()	{return _current;}
-        const int & GetnRuns() const	{return _nRuns;}
+        const int & GetnRuns() const	{return _run;}
         void PrintCurrent(string dest="") {
             double t1, t2, dt, depth;
             // If necessary, redirect 'cout' to 'fout'

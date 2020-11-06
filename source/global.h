@@ -32,13 +32,13 @@
 #include "gsl/gsl_rng.h"
 #include "gsl/gsl_randist.h"
 extern gsl_rng * gslRand;
+#endif
 
-// Clean exit on timeout
+// Clean exit on timeout or program kill
 #include <mutex>
 #include <chrono>
 #include <thread>
-
-#endif
+#include <csignal>
 
 template<typename T> void safe_delete(T& );
 template<typename T> void clearListList(T&obj);
@@ -50,6 +50,10 @@ const double e       = 1.60217646e-19;
 extern bool VERBOSITY_HIGH;
 extern int WARNINGS;
 //#define printTotalOccupation
+
+// Try to output results on receiving terminate signal.
+extern bool RECEIVED_TERM_SIGNAL;
+void signal_handler(int s);
 
 #endif	/* _GLOBAL_H */
 

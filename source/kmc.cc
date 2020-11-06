@@ -16,6 +16,7 @@
 ///////////////////////////////////////////////////////////////////////
 #include "kmc.h"
 // TODO: merge these functions?
+// TODO: Make sure timeout functionality works correctly on different system types.
 // Simple First Reaction Method
 void kmc::FRM() {
     double oldMu = 1e50;
@@ -23,14 +24,22 @@ void kmc::FRM() {
     double changeInMu = 1e50;
     double dz;
 
-    bool timedOut = false;
+    bool interrupted = false;
     if (_timeoutMinutes) {
         thread timeoutThread(&kmc::SleepUntilTimeout, this);
         timeoutThread.detach();
     }
 
-    _nRuns=0;
-    while (!timedOut) {  // entire simulation... 
+    _run=0;
+    while (!interrupted) {  // entire simulation... 
+
+        _run++;
+        if (_run > _maxRuns) {
+            cout << "!!! WARNING !!! : Mobility not converged, maxRuns exceeded.\n";
+            WARNINGS++;
+            break;
+        }
+
         _Hoppers->GenerateAll(_nHoppers, 0.0);
         if (_hopperInteractions) {
             _Hoppers->SetHops_C(0.0);
@@ -51,34 +60,34 @@ void kmc::FRM() {
                 if (_mutex.try_lock()) {
                     // Try to gain ownership of the mutex object
                     // This should only succeed if the timeout thread has released it upon reaching the end of the timout interval.
-                    cout << "!!! WARNING !!! : Mobility not converged, timeout triggered.\n";
+                    cout << "!!! WARNING !!! : Timeout triggered, ending KMC...\n";
                     WARNINGS++;
-                    timedOut = true;
+                    interrupted = true;
                     _mutex.unlock();
                     break;
                 }
             }
+            if (RECEIVED_TERM_SIGNAL) {
+                std::cout << "!!! WARNING !!! : Received interrupt or terminate signal, ending KMC...\n";
+                WARNINGS++;
+                interrupted = true;
+                break;
+            }
         }
-        _nRuns++;
         _totalTimeOverAllRuns += _time;
         oldMu = newMu;
         //newMu = _Hoppers->GetSumReciprocalCollTimes() / _nRuns;
         newMu = _Hoppers->GetSumReciprocalCollTimes() / _Hoppers->GetTotalCollectionEvents();
         changeInMu = newMu / oldMu;
         if ( VERBOSITY_HIGH ) {
-            cout << "Run number " << _nRuns 
+            cout << "Run number " << _run 
             << ": Hoppers left = " << _Hoppers->GetActive() 
             << "; Mobility (cm^2/V.s) = " 
-            <<  _Hoppers->GetSumReciprocalCollTimes()/(_nHoppers * _nRuns) * 1e-16*(_graph->GetDepth()/-_graph->GetFieldZ())
+            <<  _Hoppers->GetSumReciprocalCollTimes()/(_nHoppers * _run) * 1e-16*(_graph->GetDepth()/-_graph->GetFieldZ())
             << ";  fractional change of mob. = " << changeInMu << endl;
         }
         if (changeInMu > _lowerTol && changeInMu < _upperTol) {
             cout << "Mobility converged\n";
-            break;
-        }
-        if (_nRuns >= _maxRuns) {
-            cout << "!!! WARNING !!! : Mobility not converged, maxRuns exceeded.\n";
-            WARNINGS++;
             break;
         }
         _Hoppers->SetWaitTimes(_time);
