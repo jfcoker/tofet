@@ -46,6 +46,7 @@ class kmc{
         double _alpha;  // subsequent log time bins are dt * [(alpha ^ n) - (alpha ^ (n-1))] wide
         double _logAlpha;
         double _sum_dz;  // the total distance moved along z, summed over all hoppers
+        double _mu; // the mobility, from total displacement over total time
         int _nLogTimeBins;  // number of geometric time bins
         vector <double> _current;  // photocurrent
         int _nHoppers;  // initial number of hoppers.  NOTE: this is not updated as hoppers are collected
@@ -155,7 +156,7 @@ class kmc{
         const double & GetAlpha() const	{return _alpha;}
         vector <double> & GetTimeBins()	{return _current;}
         const int & GetnRuns() const	{return _run;}
-        const double & GetMu() const {return _sum_dz * 1e-16 / (_totalTimeOverAllRuns * _nHoppers * -_graph->GetFieldZ());}
+        const double & GetMu() const {return _mu;}
         void PrintCurrent(string dest="") {
             double t1, t2;
             // If necessary, redirect 'cout' to 'fout'

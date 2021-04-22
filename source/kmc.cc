@@ -17,10 +17,11 @@
 #include "kmc.h"
 // TODO: merge these functions?
 // TODO: Make sure timeout functionality works correctly on different system types.
+// TODO: Display warning if simulation time exceeded when this is not the expected conditon for simulation finishing.
 // Simple First Reaction Method
 void kmc::FRM() {
-    double oldMu = 1e50;
-    double newMu = 1e50;
+    _mu = 1e50;
+    double prevMu = 1e50;
     double changeInMu = 1e50;
     double dz;
 
@@ -30,13 +31,11 @@ void kmc::FRM() {
         timeoutThread.detach();
     }
 
-    _run=1;
+    _run = 1;
     while (!interrupted) {  // entire simulation... 
 
         _Hoppers->GenerateAll(_nHoppers, 0.0);
-        if (_hopperInteractions) {
-            _Hoppers->SetHops_C(0.0);
-        }
+        if (_hopperInteractions) _Hoppers->SetHops_C(0.0);
         _Hoppers->FindFastest();
         _time=0.0;
         while (_Hoppers->GetActive()>0) {  // single run...
@@ -44,11 +43,7 @@ void kmc::FRM() {
             dz = (_Hoppers->*moveFastest)();
             _sum_dz+=dz;
             UpdatePhotocurrent( dz );
-            if (_time > _maxTime) {
-                cout << "!!! WARNING !!! : Mobility not converged, simulation maxTime exceeded.\n";
-                WARNINGS++;
-                break;
-            }
+            if (_time > _maxTime) break;
             if (_timeoutMinutes) {
                 if (_mutex.try_lock()) {
                     // Try to gain ownership of the mutex object
@@ -61,27 +56,31 @@ void kmc::FRM() {
                 }
             }
             if (RECEIVED_TERM_SIGNAL) {
-                std::cout << "!!! WARNING !!! : Received interrupt or terminate signal, ending KMC...\n";
+                cout << "!!! WARNING !!! : Received interrupt or terminate signal, ending KMC...\n";
                 WARNINGS++;
                 interrupted = true;
                 break;
             }
         }
         _totalTimeOverAllRuns += _time;
-        oldMu = newMu;
-        newMu = GetMu();
-        changeInMu = newMu / oldMu;
-        if ( VERBOSITY_HIGH ) {
-            cout << "Run number " << _run 
-            << ": Hoppers left = " << _Hoppers->GetActive() 
-            << "; Mobility (cm^2/V.s) = " 
-            <<  newMu
-            << ";  fractional change of mob. = " << changeInMu << endl;
+        
+        prevMu = _mu;
+        _mu = _sum_dz * 1e-16 / (_totalTimeOverAllRuns * _nHoppers * -_graph->GetFieldZ());
+        changeInMu = _mu / prevMu;
+
+        if (VERBOSITY_HIGH) {
+            cout << "Run number " << _run
+                 << ": Hoppers left = " << _Hoppers->GetActive()
+                 << "; Mobility (cm^2/V.s) = " << _mu;
+            if (_run > 1) cout << "; Fractional change of mob. = " << changeInMu;
+            cout << endl;
         }
-        if (changeInMu > _lowerTol && changeInMu < _upperTol) {
-            cout << "Mobility converged\n";
+
+        if (_run > 1 && changeInMu > _lowerTol && changeInMu < _upperTol) {
+            cout << "Mobility converged" << endl;
             break;
         }
+
         _Hoppers->SetWaitTimes(_time);
         _Hoppers->softClear();
         _graph->ClearDCs();
@@ -91,9 +90,7 @@ void kmc::FRM() {
             WARNINGS++;
             break;
         }
-        else {
-            _run++;
-        }
+        else _run++;
     }
 }
 // First reaction method with all the necessary ancillary functions to handle FETs
