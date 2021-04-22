@@ -53,7 +53,7 @@ class kmc{
         bool _hopperInteractions;  // Coulombic interactions?
     
         void UpdatePhotocurrent(const double & ); 
-        double (hoppers::*moveFastest)();  // pointer to appropriate MoveFastest_* function 
+        double (hoppers::*moveFastest)();  // pointer to appropriate MoveFastest_* function
 
        /***************************************************
         * TIMEOUT
@@ -121,7 +121,7 @@ class kmc{
                 if (VERBOSITY_HIGH) {
                     cout << "Setting to MoveFastest_PB" << endl;
                 }
-                moveFastest = &hoppers::MoveFastest_PB;
+                moveFastest=&hoppers::MoveFastest_PB;
             }
             if (_mode=="fet") {
                 if ( VERBOSITY_HIGH ) {
@@ -155,8 +155,9 @@ class kmc{
         const double & GetAlpha() const	{return _alpha;}
         vector <double> & GetTimeBins()	{return _current;}
         const int & GetnRuns() const	{return _run;}
+        const double & GetMu() const {return _sum_dz * 1e-16 / (_totalTimeOverAllRuns * _nHoppers * -_graph->GetFieldZ());}
         void PrintCurrent(string dest="") {
-            double t1, t2, dt, depth;
+            double t1, t2;
             // If necessary, redirect 'cout' to 'fout'
             streambuf* cout_sbuf = std::cout.rdbuf();
             ofstream   fout;
@@ -172,10 +173,8 @@ class kmc{
                         t1 = _dt * pow(_alpha, i-1);
                     }
                     t2 = _dt * pow(_alpha, i);
-                    dt =  t2 - t1;
-                    depth = (*_graph).GetDepth();
                     if (_current.at(i) != 0) {
-                        cout << '\t' << t2 << "\t\t" << e * _current.at(i) / (dt*depth) <<endl;
+                        cout << '\t' << t2 << "\t\t" << e * _current.at(i) / ((t2 - t1) * _graph->GetDepth()) <<endl;
                     }
             }
             if (dest=="file") {

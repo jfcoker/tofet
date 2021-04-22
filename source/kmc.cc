@@ -30,15 +30,8 @@ void kmc::FRM() {
         timeoutThread.detach();
     }
 
-    _run=0;
+    _run=1;
     while (!interrupted) {  // entire simulation... 
-
-        _run++;
-        if (_run > _maxRuns) {
-            cout << "!!! WARNING !!! : Mobility not converged, maxRuns exceeded.\n";
-            WARNINGS++;
-            break;
-        }
 
         _Hoppers->GenerateAll(_nHoppers, 0.0);
         if (_hopperInteractions) {
@@ -76,14 +69,13 @@ void kmc::FRM() {
         }
         _totalTimeOverAllRuns += _time;
         oldMu = newMu;
-        //newMu = _Hoppers->GetSumReciprocalCollTimes() / _nRuns;
-        newMu = _Hoppers->GetSumReciprocalCollTimes() / _Hoppers->GetTotalCollectionEvents();
+        newMu = GetMu();
         changeInMu = newMu / oldMu;
         if ( VERBOSITY_HIGH ) {
             cout << "Run number " << _run 
             << ": Hoppers left = " << _Hoppers->GetActive() 
             << "; Mobility (cm^2/V.s) = " 
-            <<  _Hoppers->GetSumReciprocalCollTimes()/(_nHoppers * _run) * 1e-16*(_graph->GetDepth()/-_graph->GetFieldZ())
+            <<  newMu
             << ";  fractional change of mob. = " << changeInMu << endl;
         }
         if (changeInMu > _lowerTol && changeInMu < _upperTol) {
@@ -93,6 +85,15 @@ void kmc::FRM() {
         _Hoppers->SetWaitTimes(_time);
         _Hoppers->softClear();
         _graph->ClearDCs();
+
+        if (_run >= _maxRuns) {
+            cout << "!!! WARNING !!! : Mobility not converged, maxRuns reached.\n";
+            WARNINGS++;
+            break;
+        }
+        else {
+            _run++;
+        }
     }
 }
 // First reaction method with all the necessary ancillary functions to handle FETs

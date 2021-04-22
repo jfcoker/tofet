@@ -137,14 +137,12 @@ int main(int argc, char * argv[]) {
              << "\ttime (s)\t-\tcurrent (A)\n";
         KMC.PrintCurrent();
         cout << "> TOTAL RUNS = " << KMC.GetnRuns() << endl
-             << "> TOTAL SIMULATION TIME (s) = " << KMC.GetTotalTimeOverAllRuns() << endl;
-        cout << "> MOBILITY FROM TOTAL DISPLACEMENT AND TOTAL TIME (cm^2/V.s)= "
-             << KMC.GetSumDz() * 1e-16 / (KMC.GetTotalTimeOverAllRuns() * totalHoppers * -Graph.GetFieldZ())
-             << endl;
+             << "> TOTAL SIMULATION TIME (s) = " << KMC.GetTotalTimeOverAllRuns() << endl
+             << "> MOBILITY FROM TOTAL DISPLACEMENT AND TOTAL TIME (cm^2/V.s)= " << KMC.GetMu() << endl;
 
         if (Read(sim, "mode", "tof") == "pb") {
-            cout << "> TOTAL DISPLACEMENT (Angs)= " << KMC.GetSumDz() << endl;
-            cout << "> AVERAGE DISPLACEMENT PER HOPPER (Angs)= " << KMC.GetSumDz() / totalHoppers << endl;
+            cout << "> TOTAL DISPLACEMENT (Angs)= " << KMC.GetSumDz() << endl
+                 << "> AVERAGE DISPLACEMENT PER HOPPER (Angs)= " << KMC.GetSumDz() / totalHoppers << endl;
         }
 
         if (Read(sim, "mode", "tof") == "regenerate" || Read(sim, "mode", "tof") == "tof") {
