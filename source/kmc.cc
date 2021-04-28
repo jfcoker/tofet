@@ -73,7 +73,7 @@ void kmc::FRM() {
                  << ": Hoppers left = " << _Hoppers->GetActive()
                  << "; Mobility (cm^2/V.s) = " << _mu;
             if (_run > 1) cout << "; Fractional change of mob. = " << changeInMu;
-            cout << endl;
+            cout << endl << flush;
         }
 
         if (_run > 1 && changeInMu > _lowerTol && changeInMu < _upperTol) {
