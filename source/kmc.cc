@@ -31,8 +31,15 @@ void kmc::FRM() {
         timeoutThread.detach();
     }
 
-    _run = 1;
-    while (!interrupted) {  // entire simulation... 
+    _run = 0;
+    while (!interrupted) {  // entire simulation...
+
+        if (_run >= _maxRuns) {
+            cout << "!!! WARNING !!! : Mobility not converged, maxRuns reached.\n";
+            WARNINGS++;
+            break;
+        }
+        else _run++;
 
         _Hoppers->GenerateAll(_nHoppers, 0.0);
         if (_hopperInteractions) _Hoppers->SetHops_C(0.0);
@@ -84,13 +91,6 @@ void kmc::FRM() {
         _Hoppers->SetWaitTimes(_time);
         _Hoppers->softClear();
         _graph->ClearDCs();
-
-        if (_run >= _maxRuns) {
-            cout << "!!! WARNING !!! : Mobility not converged, maxRuns reached.\n";
-            WARNINGS++;
-            break;
-        }
-        else _run++;
     }
 }
 // First reaction method with all the necessary ancillary functions to handle FETs
