@@ -213,7 +213,7 @@ int vertex::ChooseNeighbourUnoccupied(double totalRate) const {
 // Recalculate the totalRate to unoccupied neighbours.
 double vertex::CalcTotalRateToUnoccupied() {
     double totalRateToUnoccupied = 0.;
-    for (unsigned int i=0; i<_neighbours.size() ;++i){
+    for (unsigned int i=0; i<_neighbours.size(); ++i){
         if (!_neighbours[i]->IsOccupied()) totalRateToUnoccupied += _rates[i]; 
     }
     return totalRateToUnoccupied;
