@@ -131,7 +131,7 @@ void graph::SetRates_DE() {
 
     vector <vertex *>::iterator it=_vertices.begin();
     for (; it!=_vertices.end(); it++)
-        (*it)->SetRates_DE(_Vg, _fieldZ, _reorg,_kT);
+        (*it)->SetRates_DE(_reorg,_kT);
 }
 // Set all difference in Coulomb energies to 0.0
 void graph::ClearDCs() {

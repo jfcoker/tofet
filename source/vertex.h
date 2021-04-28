@@ -92,7 +92,7 @@ class vertex{
         /*******************************
          * SET RATES
          ******************************/
-        void SetRates_DE(const double &, const double &, const double &, const double &);
+        void SetRates_DE(const double &, const double &);
         void SetRatesPrefactor_C(const double &, const double &);
         void UpdateRates_C(const double &, const double &);
 

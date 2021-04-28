@@ -100,7 +100,7 @@ void vertex::ModifyDEsUsingField(const double & field) {
  * CALCULATE RATES 
  ************************************/
 // When there are no 'hopperInteractions', can get away with simply calculating rates once:
-void vertex::SetRates_DE(const double & Vg, const double & fieldZ, const double & reorg, const double & kT) {
+void vertex::SetRates_DE(const double & reorg, const double & kT) {
     double DE;
     _totalRate = 0.0;
     for (unsigned int i=0; i<_neighbours.size(); i++) {
