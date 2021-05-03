@@ -8,6 +8,11 @@ bool VERBOSITY_HIGH = false;
 int WARNINGS = 0;
 bool RECEIVED_TERM_SIGNAL = false;
 
+void ERROR(int code, const char* msg) {
+    std::cout << "!!! ERROR !!!: " << msg << "\n";
+    exit(code);
+}
+
 void signal_handler(int s) {
     RECEIVED_TERM_SIGNAL = true;
 }

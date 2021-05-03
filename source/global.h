@@ -51,9 +51,11 @@ extern bool VERBOSITY_HIGH;
 extern int WARNINGS;
 //#define printTotalOccupation
 
+// Print an error message and exit program.
+void ERROR(int code, const char* msg);
+
 // Try to output results on receiving terminate signal.
 extern bool RECEIVED_TERM_SIGNAL;
 void signal_handler(int s);
 
 #endif	/* _GLOBAL_H */
-

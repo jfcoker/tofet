@@ -32,10 +32,9 @@ int main(int argc, char * argv[]) {
     sigaction(SIGTERM, &sigHandler, NULL);
 
     // DETERMINE INPUT FILES
-    if(argc < 4) {				
-		cout << "*** ERROR ***: Expect at least three input files: .sim, .xyz, .edge\n";
-		exit(-1);
-    }
+    if(argc < 4)
+        ERROR(-1, "Expect at least three input files: .sim, .xyz, .edge");
+
     char sim[128], xyz[128], edge[128], occ[128];
     for (int i=1; i<argc; i++) {
 		if (strstr(argv[i],".sim"))  strcpy(sim,argv[i]);	
@@ -47,20 +46,17 @@ int main(int argc, char * argv[]) {
     cout << "Read simulation parameters ..." << endl;
     PrintAll(sim);
     // Check for incompatibilities in sim file
-    if ( Read(sim,"hopperInteractions","0")=="1" && Read(sim,"mode","tof")=="tof" ) {
-        cout << "!!! ERROR !!!: hopperInteractions aren't currently implemented in the 'tof' mode\n";
-        exit(-1);
-    }
-    if (Read(sim, "hopperInteractions", "0") == "1" && Read(sim, "siteEnergies", "1") == "0") {
-        cout << "!!! ERROR !!!: hopperInteractions incompatible with siteEnergies 0\n";
-        exit(-1);
-    }
+    if ( Read(sim,"hopperInteractions","0")=="1" && Read(sim,"mode","tof") == "tof")
+        ERROR(-1, "hopperInteractions aren't currently implemented in the 'tof' mode");
+
+    if (Read(sim, "hopperInteractions", "0") == "1" && Read(sim, "siteEnergies", "1") == "0")
+        ERROR(-1, "hopperInteractions incompatible with siteEnergies 0");
+
     // Determine verbosity of output
-    if (Read(sim, "verbosity", "low") == "high") VERBOSITY_HIGH = true;
+    VERBOSITY_HIGH = (Read(sim, "verbosity", "low") == "high");
 
     // Determine timeout interval
-    int timeoutMinutes=0;
-    timeoutMinutes = atoi(Read(sim, "timeout", "0").c_str());
+    int timeoutMinutes = atoi(Read(sim, "timeout", "0").c_str());
 
     // SETUP GSL RANDOM NUMBER GENERATOR (IF NEEDED)
     #ifndef RandomB
