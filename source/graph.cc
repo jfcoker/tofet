@@ -115,6 +115,7 @@ void graph::ModifyDEsUsingField() {
     for (; it!=_vertices.end(); it++)
 	    (*it)->ModifyDEsUsingField(_fieldZ);
 }
+// Marcus hopping model
 // When Coulombic interactions are enabled, only pre-factor 
 //   is constant.
 void graph::SetRatesPrefactor_C() {
@@ -124,6 +125,7 @@ void graph::SetRatesPrefactor_C() {
     for (; it!=_vertices.end(); it++)
         (*it)->SetRatesPrefactor_C(_reorg,_kT);
 }
+// Marcus hopping model
 // Without Coulombic interactions rates are constant
 //   and can just be set once
 void graph::SetRates_DE() {
@@ -132,6 +134,26 @@ void graph::SetRates_DE() {
     vector <vertex *>::iterator it=_vertices.begin();
     for (; it!=_vertices.end(); it++)
         (*it)->SetRates_DE(_reorg,_kT);
+}
+// Miller-Abrahams hopping model
+// When Coulombic interactions are enabled, only pre-factor 
+//   is constant.
+void graph::SetRatesPrefactor_CMA() {
+    if (VERBOSITY_HIGH) cout << "Setting rates pre-factors\n";
+
+    vector <vertex*>::iterator it = _vertices.begin();
+    for (; it != _vertices.end(); it++)
+        (*it)->SetRatesPrefactor_CMA();
+}
+// Miller-Abrahams hopping model
+// Without Coulombic interactions rates are constant
+//   and can just be set once
+void graph::SetRates_MA() {
+    if (VERBOSITY_HIGH) cout << "Setting rates using DEs\n";
+
+    vector <vertex*>::iterator it = _vertices.begin();
+    for (; it != _vertices.end(); it++)
+        (*it)->SetRates_MA(_kT);
 }
 // Set all difference in Coulomb energies to 0.0
 void graph::ClearDCs() {

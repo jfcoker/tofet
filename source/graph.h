@@ -97,8 +97,13 @@ class graph{
             ModifyDEsUsingField();
 
             if (_hopperInteractions || Read(sim, "mode", "tof") == "fet") {
+                
+                // doesn't set the field!
+                if (Read(sim, "hopRate", "marcus") == "milabe")
+                    SetRatesPrefactor_CMA();
+                else
+                    SetRatesPrefactor_C();
 
-                SetRatesPrefactor_C();  // doesn't set the field!
                 // The Coulomb prefactor in eV.Ang/e^2:
                 _coulombPrefactor = 14.3996442 / atof(Read(sim, "dielectric").c_str());
                 // The following should be uncommented if you want to use a look-up 
@@ -106,8 +111,12 @@ class graph{
                 // in hoppers.cc
                 // MakeCoulombEnergyGrid(); 
             }
-            else SetRates_DE();
-
+            else {
+                if (Read(sim, "hopRate", "marcus") == "milabe")
+                    SetRates_MA();
+                else
+                    SetRates_DE();
+            }
             if (Read(sim, "printVertices", "0") == "1") PrintVertices(readSiteEnergies);
             if (Read(sim, "printEdges", "0") == "1") PrintEdges();
         }
@@ -124,10 +133,11 @@ class graph{
      * SETS and ADDS
      ****************************/
     void ClearDCs(); // reset _DCs to 0
-    //void AddEdge(const unsigned int &, const unsigned int &, const double &);
     void ModifyDEsUsingField();  // ... likewise for deltaE's
-    void SetRatesPrefactor_C();  // set prefactors (no energies) 
-    void SetRates_DE();  // set rates from deltaE's 
+    void SetRatesPrefactor_C();  // set prefactors (no energies), Marcus hopping model
+    void SetRatesPrefactor_CMA();  // set prefactors (no energies), Miller-Abrahams hopping model
+    void SetRates_DE();  // set rates from deltaE's, Marcus hopping model
+    void SetRates_MA();  // set rates from deltaE's, Miller-Abrahams hopping model
     void NormaliseOccupationTimes(const double, int);  
     void MakeCoulombEnergyGrid();  
     double const &GetCoulomb(vertex *, vertex *);  // ... from a grid

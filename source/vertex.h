@@ -93,8 +93,11 @@ class vertex{
          * SET RATES
          ******************************/
         void SetRates_DE(const double &, const double &);
+        void SetRates_MA(const double &);
         void SetRatesPrefactor_C(const double &, const double &);
+        void SetRatesPrefactor_CMA();
         void UpdateRates_C(const double &, const double &);
+        void UpdateRates_CMA(const double &);
 
         /*******************************
          * MISCELLANEOUS

@@ -99,6 +99,7 @@ void vertex::ModifyDEsUsingField(const double & field) {
 /*************************************
  * CALCULATE RATES 
  ************************************/
+// Marcus hopping model
 // When there are no 'hopperInteractions', can get away with simply calculating rates once:
 void vertex::SetRates_DE(const double & reorg, const double & kT) {
     double DE;
@@ -110,6 +111,18 @@ void vertex::SetRates_DE(const double & reorg, const double & kT) {
         _totalRate += _rates[i];
     }
 }
+// Miller-Abrahams hopping model
+// When there are no 'hopperInteractions', can get away with simply calculating rates once:
+void vertex::SetRates_MA(const double& kT) {
+    double DE;
+    _totalRate = 0.0;
+    for (unsigned int i = 0; i < _neighbours.size(); i++) {
+        DE = _DEs.at(i);
+        _rates[i] = _Js.at(i) * (DE < 0.0) ? 1.0 : exp(-DE / kT);
+        _totalRate += _rates[i];
+    }
+}
+// Marcus hopping model
 // When there *are* 'hopperInteractions', need to constantly update rates.
 // This calculates the pre-factor in the Marcus expression 
 //   (everything except the energetics)
@@ -118,10 +131,20 @@ void vertex::SetRatesPrefactor_C(const double & reorg, const double & kT) {
         _ratesPrefactor.push_back((_Js.at(i) * _Js.at(i) / hbar_eVs) * sqrt(pi / (reorg * kT)));
     }
 }
+// Miller-Abrahams hopping model
+// When there *are* 'hopperInteractions', need to constantly update rates.
+// This calculates the pre-factor in the Marcus expression 
+//   (everything except the energetics)
+void vertex::SetRatesPrefactor_CMA() {
+    for (unsigned int i = 0; i < _neighbours.size(); i++) {
+        _ratesPrefactor.push_back(_Js.at(i));
+    }
+}
 // Whenever a charge is moved, all Coulombic energies need to be updated.
 void vertex::IncrementDCs(int i, double C) {
     _DCs.at(i)+=C;
 }
+// Marcus hopping model
 // Update the rates, given the updated _DCs.
 void vertex::UpdateRates_C(const double & reorg, const double & kT) {
     double DE;
@@ -129,6 +152,17 @@ void vertex::UpdateRates_C(const double & reorg, const double & kT) {
     for (unsigned int i=0; i<_neighbours.size(); i++) { 
         DE = _DEs.at(i) + _DCs.at(i) + reorg;
         _rates[i]   = _ratesPrefactor[i] * exp(-DE * DE/(4.0 * reorg * kT)) ;
+        _totalRate += _rates[i];
+    }
+}
+// Miller-Abrahams hopping model
+// Update the rates, given the updated _DCs.
+void vertex::UpdateRates_CMA(const double& kT) {
+    double DE;
+    _totalRate = 0.;
+    for (unsigned int i = 0; i < _neighbours.size(); i++) {
+        DE = _DEs.at(i) + _DCs.at(i);
+        _rates[i] = _ratesPrefactor[i] * (DE < 0.0) ? 1.0 : exp(-DE / kT);
         _totalRate += _rates[i];
     }
 }
