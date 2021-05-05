@@ -107,8 +107,6 @@ class vertex{
         void IncrementEC(const double newEC, const double time);
         void SetEC(const double newEC, const double time);
         double CalcTotalRateToUnoccupied(); 
-        vertex * ChooseTo() const;
-        vertex * ChooseToUnoccupied(double ) const;
         int ChooseNeighbour() const;
         int ChooseNeighbourUnoccupied(double) const;
         void IncrementDCs(int, double);

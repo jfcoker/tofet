@@ -118,7 +118,7 @@ void vertex::SetRates_MA(const double& kT) {
     _totalRate = 0.0;
     for (unsigned int i = 0; i < _neighbours.size(); i++) {
         DE = _DEs.at(i);
-        _rates[i] = _Js.at(i) * (DE < 0.0) ? 1.0 : exp(-DE / kT);
+        _rates[i] = _Js.at(i) * ((DE < 0.0) ? 1.0 : exp(-DE / kT));
         _totalRate += _rates[i];
     }
 }
@@ -162,7 +162,7 @@ void vertex::UpdateRates_CMA(const double& kT) {
     _totalRate = 0.;
     for (unsigned int i = 0; i < _neighbours.size(); i++) {
         DE = _DEs.at(i) + _DCs.at(i);
-        _rates[i] = _ratesPrefactor[i] * (DE < 0.0) ? 1.0 : exp(-DE / kT);
+        _rates[i] = _ratesPrefactor[i] * ((DE < 0.0) ? 1.0 : exp(-DE / kT));
         _totalRate += _rates[i];
     }
 }
@@ -170,43 +170,6 @@ void vertex::UpdateRates_CMA(const double& kT) {
 /************************************
  * CHOOSE DESTINATION OF HOPPER
  ***********************************/
-// Choose the destination, assuming that all neighbours are unoccupied
-//   (called by default).
-vertex * vertex::ChooseTo() const{
-    #ifdef RandomB
-    double X = Uniform() * _totalRate;
-    #else
-    double X = gsl_rng_uniform(gslRand) * _totalRate;
-    #endif
-    for (unsigned int i =0 ;i < _rates.size(); i++){
-	    X -= _rates[i];
-	    if (X <= 0. ) {
-            return _neighbours[i];  
-        }
-    }
-    cout << "***ERROR***: ChooseTo() in Vertex.h has not found anywhere to hop to (can't handle this yet!)\n";
-    exit(-1);
-    return NULL;
-}
-// Choose the destination, but check the occupation of the neighbours first
-//   (called only if an attempt is made to hop to an occupied vertex)
-vertex * vertex::ChooseToUnoccupied(double totalRate) const{
-    #ifdef RandomB
-    double X = Uniform() * totalRate;
-    #else
-    double X = gsl_rng_uniform(gslRand) * totalRate;
-    #endif
-    for (unsigned int i =0 ;i < _rates.size(); i++){
-	    if (!_neighbours[i]->IsOccupied()) {
-		X -= _rates[i];
-		if (X <= 0. ) return _neighbours[i];
-	    }
-    }
-    cout << "***ERROR***: ChooseToUnoccupied() in Vertex.cc has not found anywhere to hop to (can't handle this yet!)\n";
-    cout << scientific << "             X = " << X << endl;
-    exit(-1);
-    return NULL;
-}
 // Choose the destination, assuming that all neighbours are unoccupied
 // Return neighbour index
 int vertex::ChooseNeighbour() const {
