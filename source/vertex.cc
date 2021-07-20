@@ -76,14 +76,10 @@ void vertex::SetPos(const vec & pos){
 }
 //
 void vertex::SetType (string type){
-    if (type=="c" || type=="g" || type=="-") {
-        _type = type;
-        _electrode = (type != "-");
-    }
-    else {
-        cout << "***ERROR*** : Don't understand vertex type " << type << endl;
-        exit(-1);
-    }
+    if (type!="c" && type!="g" && type!="-")
+        ERROR(-1, "Don't understand vertex type " + type);
+    _type = type;
+    _electrode = (type != "-");
 }
 //
 void vertex::SetE(double E) {

@@ -8,8 +8,8 @@ bool VERBOSITY_HIGH = false;
 int WARNINGS = 0;
 bool RECEIVED_TERM_SIGNAL = false;
 
-void ERROR(int code, const char* msg) {
-    std::cout << "!!! ERROR !!!: " << msg << "\n";
+void ERROR(int code, std::string msg) {
+    std::cout << "!!! ERROR !!!: " << msg << std::endl;
     exit(code);
 }
 

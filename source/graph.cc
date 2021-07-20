@@ -67,10 +67,9 @@ void graph::ReadVertices(char * filename, vector <vertex *> &vertices, bool read
 }
 // Read from ***.edge
 void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDeltaEnergies=true) {
-    if (vertices.size()<1) {
-        cout << "***ERROR***: You are trying to initialise edges before vertices\n";
-        exit(-1);
-    }
+    if (vertices.size() < 1)
+        ERROR(-1, "You are trying to initialise edges before vertices");
+
     ifstream in;
     open(filename, in);
     string word;
@@ -90,11 +89,8 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
 
         if (!in) break;
 
-        if (v1 >= vertices.size() || v2 >= vertices.size()  || v1 == v2 ){
-            cout << "***ERROR***: Trying to create an edge on non-existent vertex "
-                 << v1 << "->" << v2 <<"\n";
-            exit(-1);
-        }
+        if (v1 >= vertices.size() || v2 >= vertices.size() || v1 == v2)
+            ERROR(-1, "Trying to create an edge on non-existent vertex " + to_string(v1) + "->" + to_string(v2));
 
         vertices[v1] -> AddNeighbour(vertices[v2],J, DE, DZ);
         vertices[v2] -> AddNeighbour(vertices[v1],J,-DE, -DZ);
@@ -300,11 +296,9 @@ vector <vertex *> graph::GetPreviouslyOccupied(char * filename) {
         if (!inFile) break;
 
         v = atoi(word.c_str());
-        if (v > _vertices.size()-1 || v < 0) {
-            cout << "***ERROR*** Don't understand vertex " 
-                 << v << " in inFile.out\n";
-            exit(-1);
-        }
+        if (v > _vertices.size()-1 || v < 0)
+            ERROR(-1, "Don't understand vertex " + to_string(v) + " in inFile.out");
+
         generateOnMe.push_back(_vertices.at(v));
     }
     return generateOnMe; 
@@ -336,11 +330,8 @@ vertex * graph::GetEmptyGenerator(){
         plausibleCandidate.erase(it_vert);
 
     }
-
-    cout << "***ERROR*** Failed to find an empty generator with at least one edge!\n"
-         << "            Size of _vertices=" << _vertices.size() << endl;
-    exit(-1);
-
+    ERROR(-1, "Failed to find an empty generator with at least one edge! Size of _vertices=" + to_string(_vertices.size()));
+    return 0;
 }
 // Return a vector of collectors
 vector <vertex *> graph::GetCollectors() {

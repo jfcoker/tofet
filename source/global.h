@@ -52,7 +52,7 @@ extern int WARNINGS;
 //#define printTotalOccupation
 
 // Print an error message and exit program.
-void ERROR(int code, const char* msg);
+void ERROR(int code, std::string msg);
 
 // Try to output results on receiving terminate signal.
 extern bool RECEIVED_TERM_SIGNAL;
