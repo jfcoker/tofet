@@ -22,6 +22,7 @@
 using namespace std;
 
 string Read(char *, string, string value = ""); 
+vector <double> ReadVector(char*, string);
 void open(char *, ifstream &);
 void PrintAll(char *filename);
 

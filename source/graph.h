@@ -40,7 +40,7 @@ class graph{
     // end of private:
     
     public:
-        double _reorg; // eV
+        vector <double> _reorgs; // eV (A vector so that different edges may be given different lambda values - useful for polymer transport)
         double _kT;    // eV
         double _sourceFermiEnergy;
         double _drainFermiEnergy;
@@ -62,7 +62,7 @@ class graph{
                      << ", drain Fermi energy = " << _drainFermiEnergy << endl;
             }
 
-            _reorg = atof(Read(sim, "reorg").c_str()); 
+            _reorgs = ReadVector(sim, "reorg");
             _temp = atof(Read(sim, "temp").c_str());
             _kT = _temp*k_eVK;
 
@@ -91,8 +91,9 @@ class graph{
 
             // Read input files, grabbing site energies from .xyz, or delta Es from .edge, as requested.
             // If reading site energies, calculate delta Es here as well.
+            // If more than one reorg energy was provided, also read enumerated edge types.
             ReadVertices(xyz, _vertices, readSiteEnergies);
-            ReadEdges(edge, _vertices, !readSiteEnergies);
+            ReadEdges(edge, _vertices, !readSiteEnergies, (_reorgs.size() > 1) );
 
             ModifyDEsUsingField();
 
@@ -145,7 +146,7 @@ class graph{
     /*****************************
      * PRINTS AND READS 
      ****************************/
-    void ReadEdges(char *, vector <vertex *> &, bool);
+    void ReadEdges(char *, vector <vertex *> &, bool, bool);
     void ReadVertices(char *, vector <vertex *> &, bool);
     void PrintEdges();
     void PrintVertices(bool);

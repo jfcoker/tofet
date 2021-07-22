@@ -56,3 +56,25 @@ string Read(char *filename, string name, string value) {
     in.close();
     return value;
 }
+//
+vector <double> ReadVector(char* filename, string name) {
+    ifstream in;
+    open(filename, in);
+    string word;
+    double value;
+    vector <double> values;
+    while (in) {
+        in >> word;
+        if (word == name) {
+            while (in >> value)
+                values.push_back(value);
+            return values;
+        }
+    }
+    if (values.empty()) {
+        cout << "***ERROR***: Didn't find " << name << " in " << filename << endl;
+        exit(-1);
+    }
+    in.close();
+    return values;
+}

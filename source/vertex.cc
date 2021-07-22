@@ -57,13 +57,14 @@ void vertex::SetUnoccupied(double time){
  * SETUP
  **************************/
 //
-void vertex::AddNeighbour(vertex *v, const double &J, const double &DE, const double &DZ) {
+void vertex::AddNeighbour(vertex *v, const double &J, const double &DE, const double &DZ, const double &RG) {
     if(find(_neighbours.begin(),_neighbours.end(),v)!=_neighbours.end()) {
         cout << "***ERROR***: Duplicated edges\n";
         exit(-1);
     }
     _neighbours.push_back(v);
     _Js.push_back(J);
+    _RGs.push_back(RG);
     _DZs.push_back(DZ);
     _DEs.push_back(DE);
     _DCs.push_back(0.0);
@@ -97,13 +98,13 @@ void vertex::ModifyDEsUsingField(const double & field) {
  ************************************/
 // Marcus hopping model
 // When there are no 'hopperInteractions', can get away with simply calculating rates once:
-void vertex::SetRates_DE(const double & reorg, const double & kT) {
-    double DE;
+void vertex::SetRates_DE(const double & kT) {
+    double G;
     _totalRate = 0.0;
     for (unsigned int i=0; i<_neighbours.size(); i++) {
-        DE=_DEs.at(i) + reorg;
-        _rates[i] = ((_Js.at(i) * _Js.at(i) / hbar_eVs) * sqrt(pi / (reorg * kT))
-                      * exp(-DE * DE / (4 * reorg * kT)));
+        G=_DEs.at(i) + _RGs.at(i);
+        _rates[i] = ((_Js.at(i) * _Js.at(i) / hbar_eVs) * sqrt(pi / (_RGs.at(i) * kT))
+                      * exp(-G * G / (4 * _RGs.at(i) * kT)));
         _totalRate += _rates[i];
     }
 }
@@ -122,9 +123,9 @@ void vertex::SetRates_MA(const double& kT) {
 // When there *are* 'hopperInteractions', need to constantly update rates.
 // This calculates the pre-factor in the Marcus expression 
 //   (everything except the energetics)
-void vertex::SetRatesPrefactor_C(const double & reorg, const double & kT) {
+void vertex::SetRatesPrefactor_C(const double & kT) {
     for (unsigned int i=0; i<_neighbours.size(); i++) { 
-        _ratesPrefactor.push_back((_Js.at(i) * _Js.at(i) / hbar_eVs) * sqrt(pi / (reorg * kT)));
+        _ratesPrefactor.push_back((_Js.at(i) * _Js.at(i) / hbar_eVs) * sqrt(pi / (_RGs.at(i) * kT)));
     }
 }
 // Miller-Abrahams hopping model
@@ -142,12 +143,12 @@ void vertex::IncrementDCs(int i, double C) {
 }
 // Marcus hopping model
 // Update the rates, given the updated _DCs.
-void vertex::UpdateRates_C(const double & reorg, const double & kT) {
-    double DE;
+void vertex::UpdateRates_C(const double & kT) {
+    double G;
     _totalRate=0.;
     for (unsigned int i=0; i<_neighbours.size(); i++) { 
-        DE = _DEs.at(i) + _DCs.at(i) + reorg;
-        _rates[i]   = _ratesPrefactor[i] * exp(-DE * DE/(4.0 * reorg * kT)) ;
+        G = _DEs.at(i) + _DCs.at(i) + _RGs.at(i);
+        _rates[i]   = _ratesPrefactor[i] * exp(-G * G / (4.0 * _RGs.at(i) * kT));
         _totalRate += _rates[i];
     }
 }

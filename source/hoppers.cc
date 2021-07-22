@@ -167,8 +167,8 @@ void hoppers::SetHops_C(const double & fastestTime) {
     //         you may change the order of iteration and therefore your 
     //         results...
     map <vertex *, hopper *> ::iterator it_vert = _mapVertexToHopper.begin();
-    for (; it_vert!=_mapVertexToHopper.end(); ++it_vert) { 	
-        (it_vert->first)  -> UpdateRates_C(_graph->_reorg, _graph->_kT);	
+    for (; it_vert!=_mapVertexToHopper.end(); ++it_vert) {
+        (it_vert->first)  -> UpdateRates_C(_graph->_kT);
         (it_vert->second) -> SetHop(fastestTime);
     }
 }

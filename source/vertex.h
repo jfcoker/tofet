@@ -34,6 +34,7 @@ class vertex{
         double _posZ;  // position along the 'z' axis
         vector <vertex *> _neighbours;
         vector <double> _Js;
+        vector <double> _RGs;  // reorganisation energy between vertices
         vector <double> _DEs;  // deltaE between vertices
         vector <double> _DZs;  // deltaZ between vertices
         double _E;  // site energy, as read in from ***.xyz
@@ -74,6 +75,7 @@ class vertex{
             _neighbours.clear();
             _rates.clear();
             _Js.clear();
+            _RGs.clear();
             _DEs.clear();
             _DZs.clear();
             _DCs.clear();
@@ -82,7 +84,7 @@ class vertex{
         /*******************************
          * SETUP
          ******************************/
-        void AddNeighbour(vertex *, const double &, const double &, const double &); 
+        void AddNeighbour(vertex *, const double &, const double &, const double &, const double &); 
         void SetPos(const vec & pos);
         void SetType (string);
         void SetID(int i) 	{_ID = i;}
@@ -92,11 +94,11 @@ class vertex{
         /*******************************
          * SET RATES
          ******************************/
-        void SetRates_DE(const double &, const double &);
+        void SetRates_DE(const double &);
         void SetRates_MA(const double &);
-        void SetRatesPrefactor_C(const double &, const double &);
+        void SetRatesPrefactor_C(const double &);
         void SetRatesPrefactor_CMA();
-        void UpdateRates_C(const double &, const double &);
+        void UpdateRates_C(const double &);
         void UpdateRates_CMA(const double &);
 
         /*******************************
@@ -123,6 +125,7 @@ class vertex{
         const double &GetTotalRate() const {return _totalRate;} 
         const double &GetRate(int i) const {return _rates.at(i);}
         const double &GetJ(const int & i) {return _Js.at(i);}
+        const double &GetRG(const int& i) { return _RGs.at(i); }
         const double &GetDE(const int & i) {return _DEs.at(i);}
         const double &GetDZ(const int & i) {return _DZs.at(i);}
         const double &GetDC(const int & i) {return _DCs.at(i);}

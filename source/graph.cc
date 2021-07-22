@@ -66,7 +66,7 @@ void graph::ReadVertices(char * filename, vector <vertex *> &vertices, bool read
     in.close();
 }
 // Read from ***.edge
-void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDeltaEnergies=true) {
+void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDeltaEnergies, bool readEdgeType) {
     if (vertices.size() < 1)
         ERROR(-1, "You are trying to initialise edges before vertices");
 
@@ -75,7 +75,9 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
     string word;
     unsigned int v1, v2;
     double J, DE, DZ;
+    size_t m=0;
     int counter=0;
+
     while (in) {
         in >> word; v1=atoi(word.c_str());
         in >> word; v2=atoi(word.c_str());
@@ -84,6 +86,10 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
         if (readDeltaEnergies) { in >> word; DE=atof(word.c_str()); }
         else DE = vertices[v2]->GetE() - vertices[v1]->GetE();
         
+        if (readEdgeType) { in >> word; m = atoi(word.c_str()); }
+        if (m > _reorgs.size() - 1)
+            ERROR(-1, "Trying to set an enumerated edge type (" + to_string(m) + ") which indexes outside the number of reorganisation energy values provided (" + to_string(_reorgs.size()) + ").");
+
         if (_applyPBs) DZ = min_img_dist(vertices[v1]->GetZ(), vertices[v2]->GetZ(), _sizeZ);
         else DZ = vertices[v2]->GetZ() - vertices[v1]->GetZ();
 
@@ -92,8 +98,9 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
         if (v1 >= vertices.size() || v2 >= vertices.size() || v1 == v2)
             ERROR(-1, "Trying to create an edge on non-existent vertex " + to_string(v1) + "->" + to_string(v2));
 
-        vertices[v1] -> AddNeighbour(vertices[v2],J, DE, DZ);
-        vertices[v2] -> AddNeighbour(vertices[v1],J,-DE, -DZ);
+        // Pick reorg energy from vector using enumerated edge type.
+        vertices[v1] -> AddNeighbour(vertices[v2],J, DE, DZ, _reorgs[m]);
+        vertices[v2] -> AddNeighbour(vertices[v1],J,-DE, -DZ, _reorgs[m]);
         
         counter++;
     }
@@ -119,7 +126,7 @@ void graph::SetRatesPrefactor_C() {
 
     vector <vertex *>::iterator it=_vertices.begin();
     for (; it!=_vertices.end(); it++)
-        (*it)->SetRatesPrefactor_C(_reorg,_kT);
+        (*it)->SetRatesPrefactor_C(_kT);
 }
 // Marcus hopping model
 // Without Coulombic interactions rates are constant
@@ -129,7 +136,7 @@ void graph::SetRates_DE() {
 
     vector <vertex *>::iterator it=_vertices.begin();
     for (; it!=_vertices.end(); it++)
-        (*it)->SetRates_DE(_reorg,_kT);
+        (*it)->SetRates_DE(_kT);
 }
 // Miller-Abrahams hopping model
 // When Coulombic interactions are enabled, only pre-factor 
