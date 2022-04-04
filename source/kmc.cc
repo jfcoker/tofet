@@ -24,13 +24,14 @@ void kmc::FRM() {
     double prevMu = 1e50;
     double changeInMu = 1e50;
     double dz;
+    int hopReorgEnum;
 
     bool interrupted = false;
     if (_timeoutMinutes) {
         thread timeoutThread(&kmc::SleepUntilTimeout, this);
         timeoutThread.detach();
     }
-
+    
     _run = 0;
     while (!interrupted) {  // entire simulation...
 
@@ -47,8 +48,11 @@ void kmc::FRM() {
         _time=0.0;
         while (_Hoppers->GetActive()>0) {  // single run...
             _time = _Hoppers->GetFastestTime();
+            hopReorgEnum = _Hoppers->GetFastestReorgEnum();
+            if (hopReorgEnum >= 0) _hops[hopReorgEnum]++;
             dz = (_Hoppers->*moveFastest)();
             _sum_dz+=dz;
+
             UpdatePhotocurrent( dz );
             if (_time > _maxTime) break;
             if (_timeoutMinutes) {

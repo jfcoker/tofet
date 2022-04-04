@@ -40,6 +40,7 @@ class hoppers{
         double _totalReciprocalCollectionTimes;
         list <hopper *>::iterator _fastest;  // hopper with most imminent hop time
         double _fastestTime;  // time of most imminent hop
+        int _alongReorgEnum; // index of reorganisation energy used for most imminent hop.
         map < vertex *, hopper * >  _mapVertexToHopper;
         graph * _graph;
         int _printOccupation;  // track occupation of vertices?	
@@ -165,9 +166,10 @@ class hoppers{
         double GetFETCurrent()  {return _currentStore.back();}
         hopper * GetHopper(vertex * v);
         list <hopper *>::iterator GetHopperIterator(vertex * v);
-        int GetHopperNumber(vertex * v);					
+        int GetHopperNumber(vertex * v);
         const int GetActive() const  {return _nHoppers;}
         const double & GetFastestTime () const	{return (*_fastest)->GetWaitTime();}
+        const int & GetFastestReorgEnum() const { return (*_fastest)->GetAlong(); }
         vec GetFastestPos  () const  {return (*_fastest)->GetFrom()->GetPos();}
         double  GetFastestZ  () const  {return (*_fastest)->GetFrom()->GetZ();}
         const double  & GetFastestDz  () const  {return (*_fastest)->GetDz();}

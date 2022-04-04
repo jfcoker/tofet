@@ -47,6 +47,7 @@ class kmc{
         double _logAlpha;
         double _sum_dz;  // the total distance moved along z, summed over all hoppers
         double _mu; // the mobility, from total displacement over total time
+        vector <unsigned int> _hops; // The cumulative number of hops, seperated by reorganisation energy used
         int _nLogTimeBins;  // number of geometric time bins
         vector <double> _current;  // photocurrent
         int _nHoppers;  // initial number of hoppers.  NOTE: this is not updated as hoppers are collected
@@ -72,6 +73,7 @@ class kmc{
             _sum_dz = 0.0;
             _graph = Graph;
             _Hoppers = Hoppers;
+            _hops = vector <unsigned int> (_graph->_reorgs.size(), 0);
             _maxTime=atof(Read(sim,"maxTime").c_str());
             _timeoutMinutes = timeoutMinutes;
             _mode = Read(sim, "mode", "tof");
@@ -157,6 +159,7 @@ class kmc{
         vector <double> & GetTimeBins()	{return _current;}
         const int & GetnRuns() const	{return _run;}
         const double & GetMu() const {return _mu;}
+        vector <unsigned int>& GetHops() { return _hops; }
         void PrintCurrent(string dest="") {
             double t1, t2;
             // If necessary, redirect 'cout' to 'fout'

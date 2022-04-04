@@ -350,10 +350,9 @@ double hoppers::Move( list <hopper *>::iterator H, vertex * to, double &fastestT
     }
     #endif
     double dz = GetFastestDz();
-    if ( !to->IsOccupied() ) {     	
-        if (_hopperInteractions) {
-            DeleteCoulomb(from);
-        }
+    if ( !to->IsOccupied() ) {
+        if (_hopperInteractions) DeleteCoulomb(from);
+        
         from->SetUnoccupied(fastestTime);  // Note: do this after DeleteCoulomb
         _mapVertexToHopper.erase(from); 
         to->SetOccupied(fastestTime);  // Note: do this before AddCoulomb
@@ -362,17 +361,17 @@ double hoppers::Move( list <hopper *>::iterator H, vertex * to, double &fastestT
             (*H) -> Move(to);
             AddCoulomb(to);  // If 'to' is generator, shouldn't be here!
         }
-        else {
+        else
             (*H) -> SetHop(to,fastestTime);
-        }
+        
         return dz;
     }
     // If 'to' is occupied, don't move but just give a new waitTime
     //   (taking into account the disabled reaction).
-    else {				
-        (*H) -> SetHopOccNeigh(from, fastestTime);	
+    else {
+        (*H) -> SetHopOccNeigh(from, fastestTime);
         return 0.0;
-    }						
+    }
 }
 // The MoveFastest function for simple ToF
 double hoppers::MoveFastest_C() {
@@ -496,6 +495,7 @@ void hoppers::FindFastest() {
             if ( (*it_hop)->GetWaitTime() < (*_fastest)->GetWaitTime()) _fastest = it_hop;
         }
         _fastestTime=(*_fastest)->GetWaitTime();
+        _alongReorgEnum=(*_fastest)->GetAlong();
     }
 }
 // Set all hoppers' waitTimes to 'time'.  

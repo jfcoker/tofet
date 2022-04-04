@@ -39,6 +39,7 @@ class vertex{
         vector <double> _DZs;  // deltaZ between vertices
         double _E;  // site energy, as read in from ***.xyz
         vector <double> _rates;
+        vector <unsigned int> _reorgenums;
         double _totalRate; 
         bool _occupied;
         string _type;		// generator (g), collector (c), other (-)
@@ -74,6 +75,7 @@ class vertex{
         ~vertex(){
             _neighbours.clear();
             _rates.clear();
+            _reorgenums.clear();
             _Js.clear();
             _RGs.clear();
             _DEs.clear();
@@ -84,7 +86,7 @@ class vertex{
         /*******************************
          * SETUP
          ******************************/
-        void AddNeighbour(vertex *, const double &, const double &, const double &, const double &); 
+        void AddNeighbour(vertex *, const double &, const double &, const double &, const double &, const unsigned int &); 
         void SetPos(const vec & pos);
         void SetType (string);
         void SetID(int i) 	{_ID = i;}
@@ -140,6 +142,7 @@ class vertex{
         vector <vertex *> & GetNeighbours()	{return _neighbours;}
         const bool & IsOccupied() const	{return _occupied;}
         vector < double > & GetRates() {return _rates;}
+        vector < unsigned int > & GetReorgEnums() { return _reorgenums; }
         const double & GetTotalOccupationTime() {return _totalOccupationTime;}
         unsigned int GetTimesOccupied()	{return _timesOccupied;}
         const bool IsCollector() const {if (_type=="c") return true; else return false;}

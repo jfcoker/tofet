@@ -57,7 +57,7 @@ void vertex::SetUnoccupied(double time){
  * SETUP
  **************************/
 //
-void vertex::AddNeighbour(vertex *v, const double &J, const double &DE, const double &DZ, const double &RG) {
+void vertex::AddNeighbour(vertex *v, const double &J, const double &DE, const double &DZ, const double &RG, const unsigned int &RGenum) {
     if(find(_neighbours.begin(),_neighbours.end(),v)!=_neighbours.end()) {
         cout << "***ERROR***: Duplicated edges\n";
         exit(-1);
@@ -69,6 +69,7 @@ void vertex::AddNeighbour(vertex *v, const double &J, const double &DE, const do
     _DEs.push_back(DE);
     _DCs.push_back(0.0);
     _rates.push_back(0.0);
+    _reorgenums.push_back(RGenum);
 }
 //
 void vertex::SetPos(const vec & pos){

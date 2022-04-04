@@ -162,6 +162,11 @@ int main(int argc, char * argv[]) {
 
         }
     }
+    cout << "> TOTAL HOPS (seperated by reorganisation energy used) =";
+    for (vector<unsigned int>::iterator it = KMC.GetHops().begin(); it != KMC.GetHops().end(); ++it) {
+        cout << " " << *it;
+    }
+    cout << endl;
 
     // for tofetOccupation simulations...
     #ifdef printTotalOccupation

@@ -30,6 +30,7 @@ class hopper{
     private:
         vertex * _from;  // where the hopper currently is (and will hop from)
         vertex * _to;  // where the hopper will hop to
+        int _along; // what enumerated edge type the hop will occur across
         double _waitTime;  // when the hopper will hop
         double _dZ;  // how far along the 'z' axis the hopper will hop
         double _timeGenerated;  // the time at which the hopper was generated
@@ -44,6 +45,7 @@ class hopper{
             _from = V;
             _from->SetOccupied(time);
             _timeGenerated = time;
+            _along=-1;
         }
         ~hopper() {
             _from->SetUnoccupied(_waitTime);
@@ -56,6 +58,7 @@ class hopper{
      *********/
     void Move(vertex *V) {
         _from=V;
+        _along=-1;
     }
     void SetHop(vertex * V, const double &time) {
         Move(V);
@@ -73,10 +76,12 @@ class hopper{
         if (totalRate>0) {
             int neigh = _from->ChooseNeighbourUnoccupied(totalRate);
             _to = _from->GetNeighbours()[neigh];
+            _along = _from->GetReorgEnums()[neigh];
             _dZ = _from->GetDZ(neigh);
         }
         else {
             _to = _from;
+            _along = -1;
             _dZ = 0.0;
         }
     }
@@ -89,10 +94,12 @@ class hopper{
         if (_from->GetTotalRate()>0) {
             int neigh = _from->ChooseNeighbour();
             _to = _from->GetNeighbours()[neigh];
+            _along = _from->GetReorgEnums()[neigh];
             _dZ = _from->GetDZ(neigh);
         }
         else {
             _to = _from;
+            _along = -1;
             _dZ = 0.0;
         }
     }
@@ -103,7 +110,7 @@ class hopper{
     /**********
      * GET'S
      *********/
-    const double  & GetDz () const {
+    const double & GetDz () const {
         return _dZ;
     }
     const double & GetWaitTime () const	{
@@ -115,8 +122,11 @@ class hopper{
     vertex * GetTo () const	{
         return _to;
     }
-    vertex * GetFrom () const {return 
-        _from;
+    vertex * GetFrom () const {
+        return _from;
+    }
+    const int & GetAlong() const {
+        return _along;
     }
 };
 #endif	/* _HOPPER_H */

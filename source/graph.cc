@@ -99,8 +99,8 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
             ERROR(-1, "Trying to create an edge on non-existent vertex " + to_string(v1) + "->" + to_string(v2));
 
         // Pick reorg energy from vector using enumerated edge type.
-        vertices[v1] -> AddNeighbour(vertices[v2],J, DE, DZ, _reorgs[m]);
-        vertices[v2] -> AddNeighbour(vertices[v1],J,-DE, -DZ, _reorgs[m]);
+        vertices[v1] -> AddNeighbour(vertices[v2],J, DE, DZ, _reorgs[m],m);
+        vertices[v2] -> AddNeighbour(vertices[v1],J,-DE, -DZ, _reorgs[m],m);
         
         counter++;
     }
