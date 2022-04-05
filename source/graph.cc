@@ -43,20 +43,21 @@ void graph::ReadVertices(char * filename, vector <vertex *> &vertices, bool read
     string type;
     int counter=0;
 
-    while (in) {
-        in >> word; x=atof(word.c_str());
-        in >> word; y=atof(word.c_str());
-        in >> word; z=atof(word.c_str());
-        in >> word; type=word;
-        if (readEnergies) in >> word; E=atof(word.c_str()); 
+    for (string line; getline(in, line); ) {
+        istringstream iss(line);
+        iss >> word; x=atof(word.c_str());
+        iss >> word; y=atof(word.c_str());
+        iss >> word; z=atof(word.c_str());
+        iss >> word; type=word;
+        if (readEnergies) { iss >> word; E = atof(word.c_str()); }
 
-        if (!in) break;
+        if (!iss) break;
 
         vertex * newVertex = new vertex;
         vec pos(x,y,z);
         newVertex->SetPos(pos);
         newVertex->SetType(type);
-	    newVertex->SetID(counter);
+        newVertex->SetID(counter);
         if (readEnergies) newVertex->SetE(E);
 
         vertices.push_back(newVertex);
@@ -78,22 +79,23 @@ void graph::ReadEdges(char *filename, vector <vertex *> &vertices, bool readDelt
     size_t m=0;
     int counter=0;
 
-    while (in) {
-        in >> word; v1=atoi(word.c_str());
-        in >> word; v2=atoi(word.c_str());
-        in >> word; J =atof(word.c_str());
+    for (string line; getline(in, line); ) {
+        istringstream iss(line);
+        iss >> word; v1 = atoi(word.c_str());
+        iss >> word; v2 = atoi(word.c_str());
+        iss >> word; J = atof(word.c_str());
 
-        if (readDeltaEnergies) { in >> word; DE=atof(word.c_str()); }
+        if (readDeltaEnergies) { iss >> word; DE=atof(word.c_str()); }
         else DE = vertices[v2]->GetE() - vertices[v1]->GetE();
         
-        if (readEdgeType) { in >> word; m = atoi(word.c_str()); }
+        if (readEdgeType) { iss >> word; m = atoi(word.c_str()); }
         if (m > _reorgs.size() - 1)
             ERROR(-1, "Trying to set an enumerated edge type (" + to_string(m) + ") which indexes outside the number of reorganisation energy values provided (" + to_string(_reorgs.size()) + ").");
 
         if (_applyPBs) DZ = min_img_dist(vertices[v1]->GetZ(), vertices[v2]->GetZ(), _sizeZ);
         else DZ = vertices[v2]->GetZ() - vertices[v1]->GetZ();
 
-        if (!in) break;
+        if (!iss) break;
 
         if (v1 >= vertices.size() || v2 >= vertices.size() || v1 == v2)
             ERROR(-1, "Trying to create an edge on non-existent vertex " + to_string(v1) + "->" + to_string(v2));
