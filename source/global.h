@@ -26,6 +26,7 @@
 #include <deque>
 #include <list>
 #include <string>
+#include <tuple>
 #include <cstring>
 #include <cmath>
 #include "RandomB.h"

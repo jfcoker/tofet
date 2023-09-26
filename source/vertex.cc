@@ -77,8 +77,8 @@ void vertex::SetPos(const vec & pos){
     _posZ = pos.getZ();
 }
 //
-void vertex::SetType (string type){
-    if (type!="c" && type!="g" && type!="-")
+void vertex::SetType(string type) {
+    if (type != "c" && type != "g" && type != "-")
         ERROR(-1, "Don't understand vertex type " + type);
     _type = type;
     _electrode = (type != "-");

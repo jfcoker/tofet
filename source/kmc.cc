@@ -53,7 +53,10 @@ void kmc::FRM() {
             dz = (_Hoppers->*moveFastest)();
             _sum_dz+=dz;
 
-            UpdatePhotocurrent( dz );
+            auto pop = _Hoppers->GetPop();
+            int popgen, poptran;
+            tie(popgen, poptran) = pop;
+            UpdatePhotocurrent(dz,popgen,poptran);
             if (_time > _maxTime) break;
             if (_timeoutMinutes) {
                 if (_mutex.try_lock()) {
@@ -75,6 +78,8 @@ void kmc::FRM() {
         }
         _totalTimeOverAllRuns += _time;
         
+        AveragePopOverRuns();
+
         prevMu = _mu;
         _mu = _sum_dz * 1e-16 / (_totalTimeOverAllRuns * _nHoppers * -_graph->GetFieldZ());
         changeInMu = _mu / prevMu;
@@ -109,15 +114,31 @@ void kmc::FRM_FET() {
     _Hoppers->SetWaitTimes(_time);
 }
 // 
-void kmc::UpdatePhotocurrent(const double & dz){
+void kmc::UpdatePhotocurrent(const double & dz, const int& gen, const int& trans){
     _geometricBin = int ((log(_time) - _logDt) / _logAlpha);
     if ( _geometricBin<0 ) _geometricBin=0;
     else if (_geometricBin >= _nLogTimeBins) {
-        _current.resize(_geometricBin+1);
-        _nLogTimeBins = _geometricBin+1;
+        _nLogTimeBins = _geometricBin + 1;
+        _current.resize(_nLogTimeBins);
+
+        _popgen_run.resize(_nLogTimeBins);
+        _poptrans_run.resize(_nLogTimeBins);
+
+        _popgen.resize(_nLogTimeBins);
+        _poptrans.resize(_nLogTimeBins);
     }
-    _current[_geometricBin] += dz;    
+    _current[_geometricBin] += dz;
+    _popgen_run[_geometricBin] = gen;
+    _poptrans_run[_geometricBin] = trans;
 }
+
+void kmc::AveragePopOverRuns() {
+    for (int i = 0; i < _geometricBin - 1; i++) {
+        _popgen.at(i) += _popgen_run.at(i);
+        _poptrans.at(i) += _poptrans_run.at(i);
+    }
+}
+
 
 void kmc::SleepUntilTimeout() {
     _mutex.lock();

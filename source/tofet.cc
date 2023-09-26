@@ -115,6 +115,8 @@ int main(int argc, char * argv[]) {
     }
 
     // OUTPUT
+    cout.precision(5);
+    cout << scientific;
     cout << "Simulation finished with " << WARNINGS << " warnings\n" 
          << ".................................\n"
          << ".................................\n";
@@ -130,8 +132,15 @@ int main(int argc, char * argv[]) {
     }
     else {
         cout << "> PHOTOCURRENT TRANSIENT\n"
-             << "\ttime (s)\t-\tcurrent (A)\n";
+             << "\ttime (s)\tcurrent (A)\n";
         KMC.PrintCurrent();
+
+        if (Read(sim, "trackpop", "0") == "1") {
+            cout << "> POPULATION DENSITY TRANSIENT\n"
+                 << "\ttime (s)\tg\tt\tc\n";
+            KMC.PrintPops();
+        }
+
         cout << "> TOTAL RUNS = " << KMC.GetnRuns() << endl
              << "> TOTAL SIMULATION TIME (s) = " << KMC.GetTotalTimeOverAllRuns() << endl
              << "> MOBILITY FROM TOTAL DISPLACEMENT AND TOTAL TIME (cm^2/V.s)= " << KMC.GetMu() << endl;
@@ -144,8 +153,11 @@ int main(int argc, char * argv[]) {
         if (Read(sim, "mode", "tof") == "regenerate" || Read(sim, "mode", "tof") == "tof") {
             cout << "> MOBILITY FROM COLLECTION TIMES (cm^2/V.s)= "
                 << Hoppers.GetSumReciprocalCollTimes() / (double(Hoppers.GetTotalCollectionEvents())) * 1e-16
-                * (Graph.GetDepth() / -Graph.GetFieldZ()) << endl
-                << "> AVERAGE NUMBER OF HOPPERS COLLECTED PER RUN = "
+                * (Graph.GetDepth() / -Graph.GetFieldZ()) << endl;
+
+            cout.precision(2);
+            cout << fixed;
+            cout << "> AVERAGE NUMBER OF HOPPERS COLLECTED PER RUN = "
                 << double(Hoppers.GetTotalCollectionEvents()) / KMC.GetnRuns() << endl
                 << "> PROBABILITY OF HOPPER BEING COLLECTED DURING RUN = "
                 << double(Hoppers.GetTotalCollectionEvents()) / (KMC.GetnRuns() * totalHoppers) << endl;

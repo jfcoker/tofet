@@ -47,7 +47,7 @@ class hoppers{
         bool _track;  // track the movement of charges?
         int _hopperInteractions;  // Coulombic interactions?
         // These are just used in FET simulations
-        vector <vertex *> _generators;  
+        vector <vertex *> _generators; 
         vector <vertex *> _collectors; 
         int _collectorCurrent;  // drain current
         int _generatorCurrent;  // source current
@@ -83,12 +83,7 @@ class hoppers{
             _generatorCurrent=0;
             _collectorCurrent=0;
             _totalReciprocalCollectionTimes=0.0;
-            if (Read(sim, "track", "0") == "1") {
-                _track = true;
-            }
-            else {
-                _track = false;
-            }
+            _track = (Read(sim, "track", "0") == "1");
             if (Read(sim, "mode","tof")=="fet") {
                 _generators= _graph->GetGenerators();
                 _collectors= _graph->GetCollectors();
@@ -176,6 +171,7 @@ class hoppers{
         double GetSumReciprocalCollTimes()  {return _totalReciprocalCollectionTimes;}
         double GetGenerationTimeOfFinalHopper() { if (_hoppers.empty()) return -1.0; else return _hoppers.back()->GetGenerationTime(); }
         unsigned int GetTotalCollectionEvents()  {return _reciprocalCollectionTimes.size();}
+        tuple<int,int> GetPop();
         void PrintOccupiedVertices(string dest="");
         int GetCollectorCurrent()  {return _collectorCurrent;}
         int GetGeneratorCurrent()  {return _generatorCurrent;}

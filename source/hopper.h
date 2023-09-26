@@ -73,7 +73,7 @@ class hopper{
         #else
         _waitTime = time - log( gsl_rng_uniform_pos(gslRand) ) / totalRate;
         #endif
-        if (totalRate>0) {
+        if (totalRate>0 && !_from->IsCollector()) {
             int neigh = _from->ChooseNeighbourUnoccupied(totalRate);
             _to = _from->GetNeighbours()[neigh];
             _along = _from->GetReorgEnums()[neigh];
@@ -86,12 +86,12 @@ class hopper{
         }
     }
     void SetHop(const double &time){
-        #ifdef RandomB
-        _waitTime = time - log( UniformPos() ) / _from->GetTotalRate();	
-        #else
-        _waitTime = time - log( gsl_rng_uniform_pos(gslRand) ) / _from->GetTotalRate();	
-        #endif
-        if (_from->GetTotalRate()>0) {
+#ifdef RandomB
+        _waitTime = time - log(UniformPos()) / _from->GetTotalRate();
+#else
+        _waitTime = time - log(gsl_rng_uniform_pos(gslRand)) / _from->GetTotalRate();
+#endif
+        if (_from->GetTotalRate()>0 && ! _from->IsCollector()) {
             int neigh = _from->ChooseNeighbour();
             _to = _from->GetNeighbours()[neigh];
             _along = _from->GetReorgEnums()[neigh];

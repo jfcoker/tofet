@@ -35,7 +35,7 @@ class kmc{
         double _time;   // the simulation time 
         double _totalTimeOverAllRuns;   // the total time, summed over all runs 
         int _geometricBin;  // time bins for photocurrent transients (tof)
-        int _oldGeometricBin;
+        int _nLogTimeBins;  // number of geometric time bins
         double _maxTime; 		
         int _run;  // the number of runs in each simulation
         double _maxRuns;  // set to double so that inf can be represented
@@ -48,13 +48,17 @@ class kmc{
         double _sum_dz;  // the total distance moved along z, summed over all hoppers
         double _mu; // the mobility, from total displacement over total time
         vector <unsigned int> _hops; // The cumulative number of hops, seperated by reorganisation energy used
-        int _nLogTimeBins;  // number of geometric time bins
         vector <double> _current;  // photocurrent
+        vector <int> _popgen_run;  // Hoppers in generation zone
+        vector <int> _poptrans_run;  // Hoppers in transport zone
+        vector <int> _popgen;  // Hoppers in generation zone
+        vector <int> _poptrans;  // Hoppers in transport zone
         int _nHoppers;  // initial number of hoppers.  NOTE: this is not updated as hoppers are collected
         string _mode;  // mode of simulation (FET, tof, regenerate...)
         bool _hopperInteractions;  // Coulombic interactions?
     
-        void UpdatePhotocurrent(const double & ); 
+        void UpdatePhotocurrent(const double &, const int& , const int&);
+        void AveragePopOverRuns();
         double (hoppers::*moveFastest)();  // pointer to appropriate MoveFastest_* function
 
        /***************************************************
@@ -99,6 +103,10 @@ class kmc{
                 _logDt = log(_dt);
                 _nLogTimeBins = int ( (log(_maxTime)  - _logDt ) / _logAlpha );
                 _current.resize(_nLogTimeBins);
+                _popgen_run.resize(_nLogTimeBins);
+                _poptrans_run.resize(_nLogTimeBins);
+                _popgen.resize(_nLogTimeBins);
+                _poptrans.resize(_nLogTimeBins);
             }
             if (_mode=="tof") { 
                 if (VERBOSITY_HIGH) {
@@ -169,7 +177,7 @@ class kmc{
                 fout.open("occVert.out");
                 cout.rdbuf(fout.rdbuf());
             }
-            for ( int i = 0; i < _geometricBin - 1; i++){ 
+            for (int i = 0; i < _nLogTimeBins; i++) {
                     if (i == 0 ) {
                         t1 = 0;
                     }
@@ -178,13 +186,29 @@ class kmc{
                     }
                     t2 = _dt * pow(_alpha, i);
                     if (_current.at(i) != 0) {
-                        cout << '\t' << t2 << "\t\t" << e * _current.at(i) / ((t2 - t1) * _graph->GetDepth()) <<endl;
+                        cout << '\t' << t2 << "\t" << e * _current.at(i) / ((t2 - t1) * _graph->GetDepth()) <<endl;
                     }
             }
             if (dest=="file") {
                 fout.close();
                 // Restore the original stream buffer  
                 cout.rdbuf(cout_sbuf);
+            }
+        }
+        void PrintPops() {
+            double t1, t2;
+
+            for (int i = 0; i < _nLogTimeBins; i++) {
+                if (i == 0) {
+                    t1 = 0;
+                }
+                else {
+                    t1 = _dt * pow(_alpha, i - 1);
+                }
+                t2 = _dt * pow(_alpha, i);
+                if (_current.at(i) != 0) { // Only print pop for timebins where at least one hop occured. If no hops occured, UpdatePhotocurrent() would not have been called, and no populations would have been stored.
+                    cout << '\t' << t2 << "\t" << _popgen.at(i) << "\t" << _poptrans.at(i) << "\t" << _run * _nHoppers - (_popgen.at(i) + _poptrans.at(i)) << endl;
+                }
             }
         }
     // end of public:

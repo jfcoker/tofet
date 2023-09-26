@@ -357,13 +357,14 @@ double hoppers::Move( list <hopper *>::iterator H, vertex * to, double &fastestT
         _mapVertexToHopper.erase(from); 
         to->SetOccupied(fastestTime);  // Note: do this before AddCoulomb
         _mapVertexToHopper[to] = *H;
+
         if(_hopperInteractions)	{
             (*H) -> Move(to);
             AddCoulomb(to);  // If 'to' is generator, shouldn't be here!
         }
-        else
-            (*H) -> SetHop(to,fastestTime);
-        
+        else {
+            (*H)->SetHop(to, fastestTime);
+        }
         return dz;
     }
     // If 'to' is occupied, don't move but just give a new waitTime
@@ -379,13 +380,13 @@ double hoppers::MoveFastest_C() {
     double fastestTime=GetFastestTime();
     double dz;
     if ( to->IsCollector() ) {
-        _reciprocalCollectionTimes.push_back(1.0/fastestTime);
-        _totalReciprocalCollectionTimes+=(1.0/fastestTime);
+        _reciprocalCollectionTimes.push_back(1.0 / fastestTime);
+        _totalReciprocalCollectionTimes += (1.0 / fastestTime);
         dz = GetFastestDz();
-        Remove(_fastest,fastestTime);
+        Remove(_fastest, fastestTime);
     }
     else dz = Move(_fastest, to, fastestTime);
-    FindFastest();        
+    FindFastest();
     return dz;
 }
 // The MoveFastest function for simple Regenerate mode
@@ -393,7 +394,7 @@ double hoppers::MoveFastest_R() {
     vertex * to = (*_fastest)->GetTo();
     double fastestTime = GetFastestTime();
     double dz;
-    if ( to->IsCollector() ) {			
+    if ( to->IsCollector() ) {
         double transitTime = fastestTime - (*_fastest)->GetGenerationTime();
         _reciprocalCollectionTimes.push_back(1.0 / transitTime);
         _totalReciprocalCollectionTimes += 1.0 / transitTime;
@@ -529,3 +530,18 @@ list <hopper *>::iterator hoppers::GetHopperIterator(vertex *v) {
 hopper* hoppers::GetHopper(vertex* v) { return *GetHopperIterator(v); }
 // Find the hopper index, given the vertex. Return index.
 int hoppers::GetHopperNumber(vertex *v) { return distance(_hoppers.begin(), GetHopperIterator(v)); }
+
+tuple<int,int>hoppers::GetPop() {
+    int gen, trans;
+    gen = trans = 0;
+    list <hopper*>::iterator it_hop = _hoppers.begin();
+    for (int i = 0; it_hop != _hoppers.end(); i++, it_hop++) {
+        if ((*it_hop)->GetFrom()->IsGenerator())
+            gen++;
+        else
+            trans++;
+    }
+    tuple<int, int> pops = make_tuple(gen, trans);
+    return pops;
+}
+
